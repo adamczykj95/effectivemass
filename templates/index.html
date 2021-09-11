@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Single Parabolic Band Modelling</h1>
+	<hr>
+	<p>Calculator based off of equations in Chapter 11 of the CRC Handbook</p>
+	<p>Written entirely by hand by Jesse M. Adamczyk</p>
+	<a href="static/reference_files/CRC_handbook_TE_2012_full_book.pdf" style="margin:12px;">Link for CRC Handbook 2012 by D.M. Rowe</a>
+	<br/>
+	<br>
+	<hr>
+	<form method="post" action="{{ url_for('action') }}" id="action_form" autocomplete="off">
+		<label for="r">Scattering Factor ("r"): </label>
+		<input type="text" id="r" name="r" value="-0.5"><br><br>
+		
+		<label for="seebeck">Seebeck Coefficent (μV/K): </label>
+		<input type="text" id="seebeck" name="seebeck"><br><br>
+		<input type="submit" value="Submit">
+	</form>
+
+{% if success==True %}
+<p>Reduced Fermi Level: {{output}}</p>
+{% endif %}
+
+{% endblock %}
