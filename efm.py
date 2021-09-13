@@ -196,7 +196,7 @@ def theoretical_zt_max(efm_list, kl_list, hall_mobility_list, temperature_list, 
         hall_mobility_list = np.abs(hall_mobility_list)
         carrier_concentration_for_max_zt_list = []
         iterations = 100
-        carrier_concentration_list = np.logspace(16,22,iterations)
+        carrier_concentration_list = np.logspace(16,21,iterations)
         nested_theoretical_zt_lists = []
         nested_carrier_concentration_lists = []
         

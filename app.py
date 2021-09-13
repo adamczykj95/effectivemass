@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+import warnings
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -513,33 +514,39 @@ def theoretical_zt_calculated():
     elif isinstance(temperature_units,str) == False:
         return render_template("zt.html", \
         error=True, error_message="Invalid resistivity unit inputs. Must be string.")
+    
+    try:
+        warnings.filterwarnings("error")
+        zt_max = efm.theoretical_zt_max([efmass]*efmass_dict[efmass_units], [kl], [mu],\
+            [temperature + temperature_dict[temperature_units]], [r])
+        warnings.filterwarnings("ignore")    
+        theoretical_zt_max_value = format(float(zt_max[0][0]),".3f")
+        carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
         
-    zt_max = efm.theoretical_zt_max([efmass]*efmass_dict[efmass_units], [kl], [mu],\
-    [temperature + temperature_dict[temperature_units]], [r])
-    theoretical_zt_max_value = format(float(zt_max[0][0]),".3f")
-    carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
+        full_file_path_excel = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
+        export_data = [zt_max[2][0], zt_max[3][0]]
+        export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
+        df_export = pd.DataFrame(export_data).transpose()
+        df_export.columns = export_labels
+        df_export.to_excel(full_file_path_excel, index=False)
     
-    full_file_path_excel = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
-    export_data = [zt_max[2][0], zt_max[3][0]]
-    export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
-    df_export = pd.DataFrame(export_data).transpose()
-    df_export.columns = export_labels
-    df_export.to_excel(full_file_path_excel, index=False)
-    
-    fig, ax = plt.subplots(1, figsize=(6,6))
-    ax.plot(zt_max[2][0], zt_max[3][0], color="#0000FF")
-    ax.scatter(zt_max[1], zt_max[0], color="#FF0000")
-    ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
-    ax.set_ylabel('Theoretical zT', fontsize=14)
-    ax.set_xscale('log')
-    ax.set_xlim(1E16,1E22)
-    
-    full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.png')
-    plt.savefig(full_file_path_plot, dpi=500)
-    
-    return render_template("theoretical_zt.html", zt=theoretical_zt_max_value, \
-    carrier=carrier_for_zt_max_value, plot=full_file_path_plot,\
-    excel=full_file_path_excel, success=True)
+        fig, ax = plt.subplots(1, figsize=(6,6))
+        ax.plot(zt_max[2][0], zt_max[3][0], color="#0000FF")
+        ax.scatter(zt_max[1], zt_max[0], color="#FF0000")
+        ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
+        ax.set_ylabel('Theoretical zT', fontsize=14)
+        ax.set_xscale('log')
+        ax.set_xlim(1E16,1E22)
+        
+        full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.png')
+        plt.savefig(full_file_path_plot, dpi=500)
+
+        return render_template("theoretical_zt.html", zt=theoretical_zt_max_value, \
+        carrier=carrier_for_zt_max_value, plot=full_file_path_plot,\
+        excel=full_file_path_excel, success=True)
+        
+    except RuntimeWarning:
+        return render_template("theoretical_zt.html", warning=True)
 
 @app.route('/<name>')
 def theoretical_zt_plot(name=''):
