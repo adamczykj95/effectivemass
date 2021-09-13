@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Thermal Conductivity Calculators</h1>
+	<hr>
+	<p style=color:red;>IGNORE ME I'M UNDER CONSTRUCTION</p>
+	<form method="post" action="{{ url_for('thermal_calculated') }}" id="action_form" autocomplete="off">
+		<label for="s">Seebeck Coefficient: </label>
+		<input type="text" id="s" name="s">
+			<select name="s_units" id="s_units">
+				<option value="uV/K">&mu;V/K</option>
+				<option value="mV/K">mV/K</option>
+				<option value="V/K">V/K</option>
+			</select>
+		<br>
+		<br>
+		<label for="r">Resistivity: </label>
+		<input type="text" id="r" name="r">
+		<select name="r_units" id="r_units">
+			<option value="mohm-cm">m&Omega;-cm</option>
+			<option value="ohm-cm">&Omega;-cm</option>
+			<option value="ohm-m">&Omega;-m</option>
+		</select>
+		<br>
+		<br>
+		<label for="T">Temperature: </label>
+		<input type="text" id="T" name="T"><label for="T"></label>
+		<select name="T_units" id="T_units">
+			<option value="kelvin">K</option>
+			<option value="centigrade">C</option>
+		</select>
+		<br>
+		<br>
+		<label for="k">Thermal Conductivity: </label>
+		<input type="text" id="k" name="k"><label for="k"> (W/mK)</label><br><br>
+		
+		<input type="submit" value="Submit">
+	</form>
+
+{% if error==True %}
+<p>Error: {{error_message}}</p>
+{% endif %}
+
+{% if success==True %}
+<a href="{{url_for('zt_download', name=download_path)}}" class="download">Download Excel File</a>
+{% endif %}
+
+{% endblock %}

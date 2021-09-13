@@ -10,6 +10,11 @@ h1 {
 	font-family: "Arial", sans-serif;
 }
 
+h2 {
+	margin: 12px;
+	font-family: "Arial", sans-serif;
+}
+
 p {
 	margin: 12px;
 }
@@ -22,7 +27,7 @@ form {
 	font-family: "Arial", sans-serif;
 	background-color: white;
 	width: 800px;
-	height: 800px;
+	min-height:1000px;
 	margin: 0 auto;
 }
 
@@ -49,4 +54,17 @@ form {
 .topnav a:active {
   background-color: #04AA6D;
   color: white;
+}
+
+.download {
+	margin: 12px;
+	color: blue;
+}
+
+.download:visited {
+	color: blue;
+}
+
+.error {
+	color: red;
 }

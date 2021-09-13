@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Theoretical zT Calculator</h1>
+	<hr>
+	<form method="post" action="{{ url_for('theoretical_zt_calculated') }}" id="action_form" autocomplete="off">
+		
+		<label for="efm">Effective Mass: </label>
+		<input type="text" id="efm" name="efm">
+			<select name="efm_units" id="efm_units">
+				<option value="m*/m0">m*/m0</option>
+				<option value="kg">kg</option>
+			</select>
+		<br>
+		<br>
+		<label for="kl">Lattice Thermal: </label>
+		<input type="text" id="kl" name="kl">
+		<label for="kl">(W/mK) </label>
+		<br>
+		<br>
+		<label for="mu">Hall Mobility: </label>
+		<input type="text" id="mu" name="mu"><label for="mu"> (cm<sup>2</sup>/V&bull;s)</label>
+		<br>
+		<br>
+		<label for="T">Temperature: </label>
+		<input type="text" id="T" name="T">
+		<select name="T_units" id="T_units">
+			<option value="kelvin">K</option>
+			<option value="centigrade">C</option>
+		</select>
+		<br>
+		<br>
+		<label for="r">Scattering Parameter: </label>
+		<input type="text" id="r" name="r" value="-0.5"><label for="r"> -0.5 for acoustic phonon scattering</label><br><br>
+		
+		<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();" >
+	</form>
+
+{% if error==True %}
+<p>Error: {{error_message}}</p>
+{% endif %}
+
+{% if success==True %}
+<p><b>Theoretical zT:</b> {{zt}}
+<br>
+<b>Carrier concentration (cm<sup>-3</sup>) to achieve zT:</b> {{carrier}}
+<br>
+<a href="{{ url_for('theoretical_zt_plot', name=plot) }}"><img src="{{ url_for('theoretical_zt_plot', name=plot) }}" alt="" width="200" height="200"></a>
+<br>
+<a href="{{ url_for('download', name=excel) }}">Download excel of plotted data</a>
+</p>
+{% endif %}
+<hr>
+
+<h2>Excel sheet upload</h2>
+
+<form method="post" action="{{ url_for('theoretical_zt_from_excel') }}" id="excel_form" enctype="multipart/form-data">
+	<label for="tzt_file">File Upload (.xls, .xlsx): </label>
+	<input type="file" id="tzt_file" name="tzt_file"><br>
+	<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();">
+</form>
+<br>
+
+{% if upload_error==True %}
+<p class="error">Error: {{upload_error_message}}</p>
+{% endif %}
+
+{% if upload_success==True %}
+<a href="{{url_for('download', name=download_path)}}" class="download">Download Excel File</a>
+{% endif %}
+
+<p>Please format excel files as shown in this <a href="../static/reference_files/zt_max_demo_sheet.xlsx">theoretical zt max demo excel sheet</a><p>
+<p>Temperature units must be: K<br>
+Seebeck units must be: &mu;V/K<br>
+Resistivity units must be: m&Omega;-cm<br>
+Thermal conductivity units must be: W/mK
+<p>
+
+<p>This calculator assumes a fixed and known effective mass.
+We then solve for the many reduced fermi level (RFL) values 
+using the effective mass and carrier concentration values ranging
+between 10<sup>16</sup>-10<sup>21</sup>cm<sup>-3</sup>.
+We use these reduced fermi level values to calculate the seebeck coefficient,
+Lorenz number, psi (&Psi;) function.
+Quality factor (&beta;) is calculated using the intrinsic mobility, 
+effective mass, temperature, and lattice thermal conductivity.
+We then calculate a theoretical zT for ever carrier concentration 
+value using equation 11.11 from the crc press book. Then we find the max
+zT value calculated for all carrier concentration values between
+10<sup>16</sup>-10<sup>22</sup>cm<sup>-3</sup> and return it with the 
+carrier concentration value for the max zT.
+
+<p>
+{% endblock %}
