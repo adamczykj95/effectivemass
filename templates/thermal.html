@@ -1,48 +1,82 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Thermal Conductivity Calculators</h1>
-	<hr>
-	<p style=color:red;>IGNORE ME I'M UNDER CONSTRUCTION</p>
+<h1>Thermal Conductivity Calculators</h1>
+<hr>
+<h2>Total Thermal Conductivity</h2>
 	<form method="post" action="{{ url_for('thermal_calculated') }}" id="action_form" autocomplete="off">
-		<label for="s">Seebeck Coefficient: </label>
-		<input type="text" id="s" name="s">
-			<select name="s_units" id="s_units">
-				<option value="uV/K">&mu;V/K</option>
-				<option value="mV/K">mV/K</option>
-				<option value="V/K">V/K</option>
+		<label for="diffusivity">Thermal Diffusivity: </label>
+		<input type="text" id="diffusivity" name="diffusivity">
+			<select name="diffusivity_units" id="diffusivity_units">
+				<option value="mm2/s">mm<sup>2</sup>/s</option>
+				<option value="cm2/s">cm<sup>2</sup>/s</option>
+				<option value="m2/s">m<sup>2</sup>/s</option>
 			</select>
 		<br>
 		<br>
-		<label for="r">Resistivity: </label>
-		<input type="text" id="r" name="r">
-		<select name="r_units" id="r_units">
-			<option value="mohm-cm">m&Omega;-cm</option>
-			<option value="ohm-cm">&Omega;-cm</option>
-			<option value="ohm-m">&Omega;-m</option>
+		<label for="r">Density: </label>
+		<input type="text" id="density" name="density">
+		<select name="density_units" id="density_units">
+			<option value="gcm-3">g/cm<sup>3</sup></option>
+			<option value="kgm-3">kg/m<sup>3</sup></option>
 		</select>
 		<br>
 		<br>
-		<label for="T">Temperature: </label>
-		<input type="text" id="T" name="T"><label for="T"></label>
-		<select name="T_units" id="T_units">
-			<option value="kelvin">K</option>
-			<option value="centigrade">C</option>
+		<label for="cp">Heat Capacity: </label>
+		<input type="text" id="cp" name="cp"><label for="cp"></label>
+		<select name="cp_units" id="cp_units">
+			<option value="jkgk">J/Kg&bull;K</option>
+			<option value="jgk">J/g&bull;K</option>
 		</select>
 		<br>
 		<br>
-		<label for="k">Thermal Conductivity: </label>
-		<input type="text" id="k" name="k"><label for="k"> (W/mK)</label><br><br>
 		
 		<input type="submit" value="Submit">
 	</form>
 
-{% if error==True %}
-<p>Error: {{error_message}}</p>
+{% if thermal_cond_error==True %}
+<p class="error">Error: {{error_message}}</p>
 {% endif %}
 
-{% if success==True %}
-<a href="{{url_for('zt_download', name=download_path)}}" class="download">Download Excel File</a>
+{% if thermal_cond_success==True %}
+<p><b>Total Thermal Conductivity:</b> {{output}} (W/mK)</p>
 {% endif %}
+
+<hr id="dulong_petit_anchor">
+<h2>Dulong-Petit Heat Capacity</h2>
+	<form method="post" action="{{ url_for('dulong_petit', _anchor='dulong_petit_anchor')}}" id="action_form" autocomplete="off">
+		<label for="n_atoms">Number of atoms in formula unit of compound </label><br>
+		<label for="n_atoms">n<sub>atoms</sub> :</label>
+		<input type="text" id="n_atoms" name="n_atoms">
+		<label for="n_atoms">Examples: PbTe=2, Pb<sub>0.5</sub>Te<sub>0.5</sub>=1, Yb<sub>14</sub>MnSb<sub>11</sub>=26</label>
+		
+		<br>
+		<br>
+		<label for="m">Molar Mass: </label>
+		<input type="text" id="m" name="m">
+		<select name="m_units" id="m_units">
+			<option value="gmol">g/mol</option>
+			<option value="kgmol">kg/mol</option>
+		</select>
+		<br>
+		<br>
+		<label for="m">Examples: <br><br>
+		PbTe=127.6 g/mol + 207.2 g/mol = 334.8 g/mol<br><br>
+		Pb<sub>0.5</sub>Te<sub>0.5</sub>=(0.5&times;127.6 g/mol) + (0.5&times;207.2 g/mol) = 167.4 g/mol<br><br>
+		Yb<sub>14</sub>MnSb<sub>11</sub>=(14&times;173.05 g/mol) + (54.938 g/mol) + (11&times;121.76 g/mol) = 3817.0 g/mol
+		<br>
+		<br>
+		
+		<input type="submit" value="Submit">
+	</form>
+
+{% if dulong_petit_error==True %}
+<p class="error">Error: {{error_message}}</p>
+{% endif %}
+
+{% if dulong_petit_success==True %}
+<p><b>Heat Capacity:</b> {{output}} (J/Kg&bull;K)</p>
+{% endif %}
+<hr>
 
 {% endblock %}

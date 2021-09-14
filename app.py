@@ -637,9 +637,91 @@ def plot():
 def thermal():
     return render_template('thermal.html')
 
-@app.route('/thermal/', methods=['POST'])
+@app.route('/thermal/total_thermal_conductivity', methods=['POST'])
 def thermal_calculated():
-    return render_template('thermal.html')
+    form_items = ['diffusivity', 'diffusivity_units', 'density', 'density_units', 'cp', 'cp_units']
+    diffusivity_dict = {'mm2/s': 1E-6, 'cm2/s': 1E-4, 'm2/s': 1}
+    density_dict = {'gcm-3': 1000, 'kgm-3': 1}
+    heat_capacity_dict = {'jkgk': 1, 'jgk': 1E-3}
+    
+    if request.method == "POST":
+        for item in form_items:
+            if item not in request.form:
+                return render_template("thermal.html", \
+                thermal_cond_error=True, error_message="No file partition")
+            else:
+                continue
+
+        diffusivity = request.form['diffusivity']
+        diffusivity_units = request.form['diffusivity_units']
+        density = request.form['density']
+        density_units = request.form['density_units']
+        heat_capacity = request.form['cp']
+        heat_capacity_units = request.form['cp_units']
+        
+        form_items_list = [diffusivity, diffusivity_units, density,\
+        density_units, heat_capacity, heat_capacity_units]
+        
+        
+        for item in form_items_list:
+            if item == '':        
+                return render_template("thermal.html", \
+                thermal_cond_error=True, error_message="An input field was left blank")
+            else:
+                continue
+        try:
+            diffusivity = float(diffusivity)
+            density = float(density)
+            heat_capacity = float(heat_capacity)    
+            
+        except ValueError:
+            return render_template("thermal.html", \
+            thermal_cond_error=True, error_message="Invalid inputs. Inputs must be numeric.")
+        
+        thermal = "{:.3f}".format(diffusivity * diffusivity_dict[diffusivity_units] *\
+                density * density_dict[density_units] *\
+                heat_capacity * heat_capacity_dict[heat_capacity_units])
+        
+        return render_template("thermal.html", output=thermal, thermal_cond_success=True)
+
+@app.route('/thermal/dulong_petit', methods=['POST'])
+def dulong_petit():
+    form_items = ['n_atoms', 'm', 'm_units']
+    molar_mass_dict = {'gmol': 1E-3, 'kgmol': 1}
+    
+    if request.method == "POST":
+        for item in form_items:
+            if item not in request.form:
+                return render_template("thermal.html", \
+                dulong_petit_error=True, error_message="No file partition")
+            else:
+                continue
+
+        n_atoms = request.form['n_atoms']
+        molar_mass = request.form['m']
+        molar_mass_units = request.form['m_units']
+        
+        form_items_list = [n_atoms, molar_mass, molar_mass_units]
+        
+        
+        for item in form_items_list:
+            if item == '':        
+                return render_template("thermal.html", \
+                dulong_petit_error=True, error_message="An input field was left blank")
+            else:
+                continue
+        try:
+            n_atoms = float(n_atoms)
+            molar_mass = float(molar_mass)
+            
+        except ValueError:
+            return render_template("thermal.html", \
+            dulong_petit_error=True, error_message="Invalid inputs. Inputs must be numeric.")
+        
+        R = 8.314 # gas constant. J/molK
+        heat_capacity = "{:.3f}".format((3 * n_atoms * R) / (molar_mass * molar_mass_dict[molar_mass_units]))
+        
+        return render_template("thermal.html", output=heat_capacity, dulong_petit_success=True)
 
 if __name__ == "__main__":
     app.debug = True

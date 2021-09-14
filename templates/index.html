@@ -108,7 +108,7 @@
 
 <hr id="psi_anchor">
 <h2>Psi (&Psi;) from Seebeck</h2>
-<form method="post" action="{{ url_for('index_psi', _anchor="psi_anchor") }}" id="index_psi" autocomplete="off">		
+<form method="post" action="{{ url_for('index_psi', _anchor='psi_anchor') }}" id="index_psi" autocomplete="off">		
 	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
 	<input type="text" id="seebeck" name="seebeck"><br><br>
 	
@@ -129,7 +129,7 @@
 
 <hr id="beta_anchor">
 <h2>Quality Factor (&beta;)</h2>
-<form method="post" action="{{ url_for('index_beta', _anchor="beta_anchor") }}" id="index_beta" autocomplete="off">		
+<form method="post" action="{{ url_for('index_beta', _anchor='beta_anchor') }}" id="index_beta" autocomplete="off">		
 	<label for="mu0">Intrinsic mobility (cm<sup>2</sup>/V&bull;s): </label>
 	<input type="text" id="mu0" name="mu0"><br><br>
 
