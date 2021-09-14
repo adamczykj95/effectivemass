@@ -69,3 +69,14 @@ form {
 .error {
 	color: red;
 }
+
+.plot_input_wrapper {
+	width: 100%;
+	height: 120px;
+}
+
+.textarea_container {
+	display: inline-block;
+	float: left;
+	margin-right: 10px;
+}
