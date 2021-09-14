@@ -2,9 +2,12 @@ from flask import Flask, render_template, request, url_for
 import efm
 import os
 from werkzeug.utils import secure_filename
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+import numpy as np
 import warnings
 
 app = Flask(__name__)
@@ -420,17 +423,12 @@ def zt_from_excel():
             except IndexError:
                 return render_template('zt.html', upload_error=True, upload_error_message="Excel file not formatted correctly (IndexError)")
 
-@app.route('/<name>')
-def zt_download(name=''):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], name)
-
 @app.route('/spb/', methods=['GET'])
 def spb():
     return render_template('spb_models.html')
     
 @app.route('/spb/', methods=['POST'])
 def spb_calculate_file():
-
     allowed_extensions = {'xlsx', 'xls'}
     
     if request.method == 'POST':
@@ -458,10 +456,6 @@ def spb_calculate_file():
                 return render_template('spb_models.html', error=True, error_message="Excel file not formatted correctly (OverflowError)")
             except IndexError:
                 return render_template('spb_models.html', error=True, error_message="Excel file not formatted correctly (IndexError)")
-
-@app.route('/<name>')
-def spb_download(name=''):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], name)
     
 @app.route('/theoretical-zt/', methods=['GET'])
 def theoretical_zt():
@@ -586,6 +580,58 @@ def theoretical_zt_from_excel():
 @app.route('/<name>')
 def download(name=''):
     return send_from_directory(name)
+    
+@app.route('/plot/', methods=['GET', 'POST'])
+def plot():
+    timestamp = time.time()
+    form_items = ['xdata', 'ydata']
+    if request.method == 'GET':
+        return render_template('plot.html')
+    
+    elif request.method == 'POST':
+        for item in form_items:
+            if item not in request.form:
+                return render_template('plot.html', error=True, error_message='No data partition. id probably wrong.')
+            
+        xdata = request.form['xdata']
+        ydata = request.form['ydata']
+        form_data = [xdata, ydata]
+        
+        for data in form_data:
+            if data == '':
+                return render_template('plot.html', error=True, error_message='Text missing from at least one entry box. Try again.')
+        
+        xdata = xdata.split('\r\n')
+        ydata = ydata.split('\r\n')
+        
+        if xdata[-1] == '':
+            xdata = xdata[:-1]
+        if ydata[-1] == '':
+            ydata = ydata[:-1]
+        if len(xdata) != len(ydata):
+            return render_template('plot.html', error=True, error_message='Inputs are not the same length.')
+        
+        xdata = list(np.float_(xdata))
+        ydata = list(np.float_(ydata))
+        
+        fig, ax = plt.subplots(1, figsize=(6,6))
+        ax.plot(xdata, ydata, color="#0000FF")
+        ax.set_xlabel('X axis', fontsize=14)
+        ax.set_ylabel('Y-axis', fontsize=14)
+        
+        full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'user_input_plot' + str(timestamp) + '.png')
+        plt.savefig(full_file_path_plot, dpi=500)
+        
+        plt.cla()
+        
+        ax.scatter(xdata, ydata, color="#0000FF")
+        ax.set_xlabel('X axis', fontsize=14)
+        ax.set_ylabel('Y-axis', fontsize=14)
+        
+        full_file_path_scatter = os.path.join(app.config['UPLOAD_FOLDER'], 'user_input_scatter' + str(timestamp) + '.png')
+        plt.savefig(full_file_path_scatter, dpi=500)
+        
+        return render_template('plot.html', success=True, plot_file_location=full_file_path_plot, scatter_file_location=full_file_path_scatter)
 
 @app.route('/thermal/', methods=['GET'])
 def thermal():

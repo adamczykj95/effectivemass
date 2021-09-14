@@ -59,7 +59,7 @@
 {% endif %}
 
 {% if upload_success==True %}
-<a href="{{url_for('zt_download', name=download_path)}}" class="download">Download Excel File</a>
+<a href="{{url_for('download', name=download_path)}}" class="download">Download Excel File</a>
 {% endif %}
 
 <p>Please format excel files as shown in this <a href="../static/reference_files/zt_demo_sheet.xlsx">zt demo excel sheet</a><p>
