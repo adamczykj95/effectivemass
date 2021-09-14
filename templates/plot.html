@@ -11,7 +11,7 @@
 		<textarea id="ydata" name="ydata" rows="4" cols="20"></textarea>
 		<br>
 		<br>
-		<input type="submit" value="Submit">
+		<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();">
 	</form>
 
 {% if error==True %}
