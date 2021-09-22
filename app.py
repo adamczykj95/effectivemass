@@ -301,7 +301,7 @@ def zt():
             timestamp = str(time.time()).replace('.','_')
             filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
             file.save(filename_timestamped)
-            time.sleep(5)
+            time.sleep(1)
             
             try:
                 zt_excel_path = efm_excel.zt_excel(filename_timestamped)
@@ -330,7 +330,7 @@ def spb_excel():
             timestamp = str(time.time()).replace('.','_')
             filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
             file.save(filename_timestamped)
-            time.sleep(5)
+            time.sleep(1)
             try:
                 spb_excel_path = efm_excel.calculate_spb(filename_timestamped)
                 flash(spb_excel_path)
@@ -406,7 +406,7 @@ def theoretical_zt():
             plt.tight_layout()
             full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.png')
             plt.savefig(full_file_path_plot, dpi=500)
-            time.sleep(5)
+            time.sleep(1)
             
             if float(theoretical_zt_max_value) > 100:
                 warning_message = "Data may be questionable (solver did not make good progress)"
@@ -428,7 +428,7 @@ def theoretical_zt():
             timestamp = str(time.time()).replace('.','_')
             filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
             file.save(filename_timestamped)
-            time.sleep(5)
+            time.sleep(1)
             try:
                 tzt_excel_path = efm_excel.theoretical_zt_max_excel(filename_timestamped)
                 flash(tzt_excel_path)
