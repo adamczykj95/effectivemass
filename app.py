@@ -291,14 +291,14 @@ def zt():
             except OverflowError:
                 zT_result_error = 'Inputs resulted in an error. Try some more realistic numbers.'
                 flash(zT_result_error)
-    
+    xdata
     elif 'zt_excel' in request.form:
         if request.method == 'POST' and zt_excel_form.validate_on_submit():
             file = zt_excel_form.file_zT.data
             filename = secure_filename(file.filename)
             full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             split_filename = full_file_path.rsplit('.',1)
-            timestamp = str(time.time())
+            timestamp = str(time.time()).replace('.','_')
             filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
             file.save(filename_timestamped)
             
