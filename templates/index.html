@@ -1,196 +1,249 @@
 {% extends "base.html" %}
+{% from "_render_field.html" import render_field %}
 
 {% block content %}
 <h1>Single Parabolic Band/Effective Mass Model Methods Calculator</h1>
 
 <hr id="efmass_anchor">
-
 <h2>Effective mass from Seebeck and Carrier Concentration</h2>
-<form method="post" action="{{ url_for('index_efmass', _anchor='efmass_anchor') }}" id="index_efmass" autocomplete="off">		
-	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
-	<input type="text" id="seebeck" name="seebeck"><br><br>
-	
-	<label for="cc">Carrier Concentration (cm<sup>-3</sup>): </label>
-	<input type="text" id="cc" name="cc">
-	<label for="cc">Example Input: 1.45E19 </label><br><br>
-	
-	<label for="T">Temperature (K): </label>
-	<input type="text" id="T" name="T"><br><br>
-	
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor='efmass_anchor') }}" id="efmass" autocomplete="off">
+	{{ efmass_form.csrf_token }}
+	{{ efmass_form.seebeck_efm.label }}
+	{{ efmass_form.seebeck_efm }}
+	{{ efmass_form.seebeck_units_efm }}
+	{% for error in efmass_form.seebeck_efm.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	<input type="submit" value="Submit">
+	{{ efmass_form.carrier_efm.label }}
+	{{ efmass_form.carrier_efm }}
+	{{ efmass_form.carrier_units_efm }}
+	<span>example formatting: 1.5E19 or 3.2e18</span>
+	{% for error in efmass_form.carrier_efm.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ efmass_form.temperature_efm.label }}
+	{{ efmass_form.temperature_efm }}
+	{{ efmass_form.temperature_units_efm }}
+	{% for error in efmass_form.temperature_efm.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ efmass_form.r_efm.label }}
+	{{ efmass_form.r_efm }}
+	{% for error in efmass_form.r_efm.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="efmass" value="Submit">
 </form>
 
-{% if index_efmass==True %}
-<p><b>Effective mass:</b> {{output}} m*/m<sub>0</sub></p>
+{% if efmass_result %}
+<p><b>Effective mass: </b>{{ efmass_result }} (m<sub>0</sub>/m<sub>e</sub>)</p>
 {% endif %}
 
-{% if index_efmass==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if efmass_result_error %}
+<p class="error">{{ efmass_result_error }}</p>
 {% endif %}
+
 
 <hr id="mu0_anchor">
 <h2>Intrinsic Mobility from Seebeck and Hall Mobility</h2>
-<form method="post" action="{{ url_for('index_mu0', _anchor='mu0_anchor') }}" id="index_mu0" autocomplete="off">		
-	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
-	<input type="text" id="seebeck" name="seebeck"><br><br>
-
-	<label for="r">Hall Mobility (cm<sup>2</sup>/V&bull;s): </label>
-	<input type="text" id="mu" name="mu"><br><br>
-
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor='mu0_anchor') }}" id="mu0" autocomplete="off">
+	{{ mu0_form.csrf_token }}
+	{{ mu0_form.seebeck_mu0.label }}
+	{{ mu0_form.seebeck_mu0 }}
+	{{ mu0_form.seebeck_units_mu0 }}
+	{% for error in mu0_form.seebeck_mu0.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	
-	<input type="submit" value="Submit">
+	{{ mu0_form.mu_mu0.label }}
+	{{ mu0_form.mu_mu0 }}
+	{{ mu0_form.mu_units_mu0 }}
+	{% for error in mu0_form.mu_mu0.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ mu0_form.r_mu0.label }}
+	{{ mu0_form.r_mu0 }}
+	{% for error in mu0_form.r_mu0.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="mu0" value="Submit">
 </form>
 
-{% if index_mu0 == True %}
-<p><b>Intrinsic Mobility:</b> {{output}} (cm<sup>2</sup>/V&bull;s)</p>
+{% if mu0_result %}
+<p><b>Intrinsic Mobility:</b> {{ mu0_result }} cm<sup>2</sup>/V&bull;s</p>
 {% endif %}
 
-{% if index_mu0==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if mu0_result_error %}
+<p class="error">{{ mu0_result_error }}</p>
 {% endif %}
-
 
 <hr id="lorenz_anchor">
 <h2>Lorenz number from Seebeck</h2>
-<form method="post" action="{{ url_for('index_lorenz', _anchor='lorenz_anchor') }}" id="index_lorenz" autocomplete="off">		
-	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
-	<input type="text" id="seebeck" name="seebeck"><br><br>
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor='lorenz_anchor') }}" id="index_lorenz" autocomplete="off">
+	{{ lorenz_form.csrf_token }}
+	{{ lorenz_form.seebeck_lorenz.label }}
+	{{ lorenz_form.seebeck_lorenz }}
+	{{ lorenz_form.seebeck_units_lorenz }}
+	{% for error in lorenz_form.seebeck_lorenz.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	<input type="submit" value="Submit">
+	{{ lorenz_form.r_lorenz.label }}
+	{{ lorenz_form.r_lorenz }}
+	{% for error in lorenz_form.r_lorenz.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="lorenz" value="Submit">
 </form>
 
-{% if index_lorenz==True %}
-<p><b>Lorenz number:</b> {{output}} (W&Omega;/K)<sup>2</sup></p>
+{% if lorenz_result %}
+<p><b>Lorenz number: </b>{{ lorenz_result }} (W&Omega;K<sup>-2</sup>)</p>
 {% endif %}
 
-{% if index_lorenz==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if lorenz_result_error %}
+<p class="error">{{ lorenz_result_error }}</p>
 {% endif %}
 
 
 <hr id="ke_anchor">
 <h2>Electronic Thermal Conductivity from Seebeck and Resistivity</h2>
-<form method="post" action="{{ url_for('index_ke', _anchor="ke_anchor") }}" id="index_ke" autocomplete="off">		
-	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
-	<input type="text" id="seebeck" name="seebeck"><br><br>
-	
-	<label for="resistivity">Resistivity (m&Omega;-cm): </label>
-	<input type="text" id="resistivity" name="resistivity"><br><br>
-	
-	<label for="T">Temperature (K): </label>
-	<input type="text" id="T" name="T"><br><br>
-	
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor="ke_anchor") }}" id="index_ke" autocomplete="off">
+	{{ ke_form.csrf_token }}
+	{{ ke_form.seebeck_ke.label }}
+	{{ ke_form.seebeck_ke }}
+	{{ ke_form.seebeck_units_ke }}
+	{% for error in ke_form.seebeck_ke.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	<input type="submit" value="Submit">
+	{{ ke_form.resistivity_ke.label }}
+	{{ ke_form.resistivity_ke }}
+	{{ ke_form.resistivity_units_ke }}
+	{% for error in ke_form.resistivity_ke.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ ke_form.temperature_ke.label }}
+	{{ ke_form.temperature_ke }}
+	{{ ke_form.temperature_units_ke }}
+	{% for error in ke_form.temperature_ke.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ ke_form.r_ke.label }}
+	{{ ke_form.r_ke }}
+	{% for error in ke_form.r_ke.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="ke" value="Submit">
 </form>
 
-{% if index_ke==True %}
-<p><b>Electronic thermal conductivity:</b> {{output}} (W/mK)</p>
+{% if ke_result %}
+<p><b>Electronic thermal conductivity: </b>{{ ke_result }} (W/mK)</p>
 {% endif %}
 
-{% if index_ke==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if ke_result_error %}
+<p class="error">{{ ke_result_error }}</p>
 {% endif %}
+
 
 <hr id="psi_anchor">
 <h2>Psi (&Psi;) from Seebeck</h2>
-<form method="post" action="{{ url_for('index_psi', _anchor='psi_anchor') }}" id="index_psi" autocomplete="off">		
-	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
-	<input type="text" id="seebeck" name="seebeck"><br><br>
-	
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor='psi_anchor') }}" id="index_psi" autocomplete="off">		
+	{{ psi_form.csrf_token }}
+	{{ psi_form.seebeck_psi.label }}
+	{{ psi_form.seebeck_psi }}
+	{{ psi_form.seebeck_units_psi }}
+	{% for error in psi_form.seebeck_psi.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	<input type="submit" value="Submit">
+	{{ psi_form.r_psi.label }}
+	{{ psi_form.r_psi }}
+	{% for error in psi_form.r_psi.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="psi" value="Submit">
 </form>
 
-{% if index_psi==True %}
-<p>Psi (&Psi;):  {{output}} units=???</p>
+{% if psi_result %}
+<p><b>Psi (&Psi;): </b>{{ psi_result }} (CK<sup>-3/2</sup>m<sup>-3</sup>)</p>
 {% endif %}
 
-{% if index_psi==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if psi_result_error %}
+<p class="error">{{ psi_result_error }}</p>
 {% endif %}
 
 <hr id="beta_anchor">
 <h2>Quality Factor (&beta;)</h2>
-<form method="post" action="{{ url_for('index_beta', _anchor='beta_anchor') }}" id="index_beta" autocomplete="off">		
-	<label for="mu0">Intrinsic mobility (cm<sup>2</sup>/V&bull;s): </label>
-	<input type="text" id="mu0" name="mu0"><br><br>
-
-	<label for="effmass">Effective mass (m*/m0): </label>
-	<input type="text" id="efmass" name="efmass"><br><br>
-
-	<label for="T">Temperature (K): </label>
-	<input type="text" id="T" name="T"><br><br>
-	
-	<label for="kl">Lattice Thermal Conductivity (W/mK): </label>
-	<input type="text" id="kl" name="kl"><br><br>
-
-	<input type="submit" value="Submit">
+<form method="post" action="{{ url_for('index', _anchor='beta_anchor') }}" id="index_beta" autocomplete="off">
+	{{ beta_form.csrf_token }}
+	{{ beta_form.mu0_beta.label }}
+	{{ beta_form.mu0_beta }}
+	{{ beta_form.mu0_units_beta }}
+	{% for error in beta_form.mu0_beta.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ beta_form.efmass_beta.label }}
+	{{ beta_form.efmass_beta }}
+	{{ beta_form.efmass_units_beta }}
+	{% for error in beta_form.efmass_beta.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ beta_form.temperature_beta.label }}
+	{{ beta_form.temperature_beta }}
+	{{ beta_form.temperature_units_beta }}
+	{% for error in beta_form.temperature_beta.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ beta_form.kl_beta.label }}
+	{{ beta_form.kl_beta }}
+	{{ beta_form.kl_units_beta }}
+	{% for error in beta_form.kl_beta.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	<input type="submit" name="beta" value="Submit">
 </form>
 
-{% if index_beta==True %}
-<p><b>Beta (&beta;):</b> {{output}} units=???</p>
+
+{% if beta_result %}
+<p><b>Beta (&beta;): </b>{{ beta_result }} (units??)</p>
 {% endif %}
 
-{% if index_beta==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if beta_result_error %}
+<p class="error">{{ beta_result_error }}</p>
 {% endif %}
 
 <hr id="rfl_s_anchor">
 <h2>Reduced Fermi level from Seebeck</h2>
-<form method="post" action="{{ url_for('index_rfl_s', _anchor="rfl_s_anchor") }}" id="index_rfl_s" autocomplete="off">		
-	<label for="seebeck">Seebeck Coefficent (&mu;V/K): </label>
-	<input type="text" id="seebeck" name="seebeck"><br><br>
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor="rfl_s_anchor") }}" id="index_rfl_s" autocomplete="off">
+	{{ rfl_s_form.csrf_token }}
+	{{ rfl_s_form.seebeck_rfl_s.label }}
+	{{ rfl_s_form.seebeck_rfl_s }}
+	{{ rfl_s_form.seebeck_units_rfl_s }}
+	{% for error in rfl_s_form.seebeck_rfl_s.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	<input type="submit" value="Submit">
+	{{ rfl_s_form.r_rfl_s.label }}
+	{{ rfl_s_form.r_rfl_s }}
+	{% for error in rfl_s_form.r_rfl_s.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="rfl_s" value="Submit">
 </form>
 
-{% if index_rfl_s==True %}
-<p><b>Reduced Fermi level:</b> {{output}}</p>
+{% if rfl_result %}
+<p><b>Reduced Fermi level: </b>{{ rfl_result }} (k<sub>B</sub>T)</p>
 {% endif %}
 
-{% if index_rfl_s==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if rfl_result_error %}
+<p class="error">{{ rfl_result_error }}</p>
 {% endif %}
+
 
 <hr id="s_rfl_anchor">
 <h2>Seebeck from reduced Fermi level</h2>
-<form method="post" action="{{ url_for('index_s_rfl', _anchor="s_rfl_anchor") }}" id="index_s_rfl" autocomplete="off">		
-	<label for="rfl">Reduced Fermi Level (units?): </label>
-	<input type="text" id="rfl" name="rfl"><br><br>
-	<label for="r">Scattering parameter: </label>
-	<input type="text" id="r" name="r" value="-0.5">
-	<label for="r">Default is -0.5 for acoustic phonon scattering</label>
+<form method="post" action="{{ url_for('index', _anchor="s_rfl_anchor") }}" id="index_s_rfl" autocomplete="off">
+	{{ s_rfl_form.csrf_token }}
+	{{ s_rfl_form.rfl_s_rfl.label }}
+	{{ s_rfl_form.rfl_s_rfl }}
+	{% for error in s_rfl_form.rfl_s_rfl.errors %}<span class="error">{{ error }}</span>{% endfor %}
 	<br><br>
-	<input type="submit" value="Submit">
+	{{ s_rfl_form.r_s_rfl.label }}
+	{{ s_rfl_form.r_s_rfl }}
+	{% for error in s_rfl_form.r_s_rfl.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<label>Default is -0.5 for acoustic phonon scattering</label>
+	<br><br>
+	<input type="submit" name="s_rfl" value="Submit">
 </form>
 
-{% if index_s_rfl==True %}
-<p><b>Seebeck Coefficient:</b> {{output}} (&mu;V/K)</p>
+{% if seebeck_result %}
+<p><b>Seebeck coefficient: </b>{{ seebeck_result }} (&mu;V/K)</p>
 {% endif %}
 
-{% if index_s_rfl==False %}
-<p class="error">Error: {{error_message}}</p>
+{% if seebeck_result_error %}
+<p class="error">{{ seebeck_result_error }}</p>
 {% endif %}
+
 <hr>
+
 {% endblock %}

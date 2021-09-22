@@ -4,79 +4,68 @@
 <h1>Thermal Conductivity Calculators</h1>
 <hr>
 <h2>Total Thermal Conductivity</h2>
-	<form method="post" action="{{ url_for('thermal_calculated') }}" id="action_form" autocomplete="off">
-		<label for="diffusivity">Thermal Diffusivity: </label>
-		<input type="text" id="diffusivity" name="diffusivity">
-			<select name="diffusivity_units" id="diffusivity_units">
-				<option value="mm2/s">mm<sup>2</sup>/s</option>
-				<option value="cm2/s">cm<sup>2</sup>/s</option>
-				<option value="m2/s">m<sup>2</sup>/s</option>
-			</select>
+	<form method="post" action="{{ url_for('thermal') }}" id="action_form" autocomplete="off">
+		{{ k_form.csrf_token }}
+		{{ k_form.diffusivity_k.label }}
+		{{ k_form.diffusivity_k }}
+		{{ k_form.diffusivity_units_k }}
+		{% for error in k_form.diffusivity_k.errors %}<span class="error">{{ error }}</span>{% endfor %}
 		<br>
 		<br>
-		<label for="r">Density: </label>
-		<input type="text" id="density" name="density">
-		<select name="density_units" id="density_units">
-			<option value="gcm-3">g/cm<sup>3</sup></option>
-			<option value="kgm-3">kg/m<sup>3</sup></option>
-		</select>
+		{{ k_form.density_k.label }}
+		{{ k_form.density_k }}
+		{{ k_form.density_units_k }}
+		{% for error in k_form.density_k.errors %}<span class="error">{{ error }}</span>{% endfor %}
 		<br>
 		<br>
-		<label for="cp">Heat Capacity: </label>
-		<input type="text" id="cp" name="cp"><label for="cp"></label>
-		<select name="cp_units" id="cp_units">
-			<option value="jkgk">J/Kg&bull;K</option>
-			<option value="jgk">J/g&bull;K</option>
-		</select>
+		{{ k_form.cp_k.label }}
+		{{ k_form.cp_k }}
+		{{ k_form.cp_units_k }}
+		{% for error in k_form.cp_k.errors %}<span class="error">{{ error }}</span>{% endfor %}
 		<br>
 		<br>
-		
-		<input type="submit" value="Submit">
+		<input type="submit" value="Submit" name="thermal" id="thermal" onclick="document.getElementById('thermal').value='Calculating...';">
 	</form>
 
-{% if thermal_cond_error==True %}
-<p class="error">Error: {{error_message}}</p>
+{% if thermal_error_message %}
+<p class="error">Error: {{thermal_error_message}}</p>
 {% endif %}
 
-{% if thermal_cond_success==True %}
-<p><b>Total Thermal Conductivity:</b> {{output}} (W/mK)</p>
+{% if thermal %}
+<p><b>Total Thermal Conductivity:</b> {{thermal}} (W/mK)</p>
 {% endif %}
 
-<hr id="dulong_petit_anchor">
-<h2>Dulong-Petit Heat Capacity</h2>
-	<form method="post" action="{{ url_for('dulong_petit', _anchor='dulong_petit_anchor')}}" id="action_form" autocomplete="off">
-		<label for="n_atoms">Number of atoms in formula unit of compound </label><br>
-		<label for="n_atoms">n<sub>atoms</sub> :</label>
-		<input type="text" id="n_atoms" name="n_atoms">
-		<label for="n_atoms">Examples: PbTe=2, Pb<sub>0.5</sub>Te<sub>0.5</sub>=1, Yb<sub>14</sub>MnSb<sub>11</sub>=26</label>
-		
-		<br>
-		<br>
-		<label for="m">Molar Mass: </label>
-		<input type="text" id="m" name="m">
-		<select name="m_units" id="m_units">
-			<option value="gmol">g/mol</option>
-			<option value="kgmol">kg/mol</option>
-		</select>
-		<br>
-		<br>
-		<label for="m">Examples: <br><br>
-		PbTe=127.6 g/mol + 207.2 g/mol = 334.8 g/mol<br><br>
-		Pb<sub>0.5</sub>Te<sub>0.5</sub>=(0.5&times;127.6 g/mol) + (0.5&times;207.2 g/mol) = 167.4 g/mol<br><br>
-		Yb<sub>14</sub>MnSb<sub>11</sub>=(14&times;173.05 g/mol) + (54.938 g/mol) + (11&times;121.76 g/mol) = 3817.0 g/mol
-		<br>
-		<br>
-		
-		<input type="submit" value="Submit">
-	</form>
-
-{% if dulong_petit_error==True %}
-<p class="error">Error: {{error_message}}</p>
-{% endif %}
-
-{% if dulong_petit_success==True %}
-<p><b>Heat Capacity:</b> {{output}} (J/Kg&bull;K)</p>
-{% endif %}
 <hr>
+<h2>Dulong-Petit Heat Capacity</h2>
+	<form method="post" action="{{ url_for('thermal')}}" id="action_form" autocomplete="off">
+		{{ dp_form.csrf_token }}
+		{{ dp_form.composition_dp.label }}
+		{{ dp_form.composition_dp }} <span>Example inputs: Yb14MnSb11, Pb0.5Te0.5, CuInTe2
+		<br>
+		<br>
+		
+{% if dp_error_message %}
+<p class="error">Error: {{dp_error_message}}</p>
+{% endif %}
+
+{% if molar_mass %}
+<p>
+	<b>Dulong-Petit Heat Capacity:</b> {{ heat_capacity }} (J/kg&bull;K)
+	<br>
+	<br>
+	<b>Molar mass:</b> {{ molar_mass }} (kg/mol)
+	<br>
+	<br>
+	<b>Number of atoms:</b> {{ num_atoms }}
+	<br>
+	<br>
+	<b>Composition interpretation:</b> {{ composition }}
+</p>
+{% endif %}
+		
+		<input type="submit" value="Submit" name="dulong_petit" id="dulong_petit" onclick="document.getElementById('dulong_petit').value='Calculating...';">
+	</form>
+
+
 
 {% endblock %}

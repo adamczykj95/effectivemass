@@ -3,64 +3,57 @@
 {% block content %}
 <h1>zT Calculator</h1>
 <hr>
-<form method="post" action="{{ url_for('zt_calculated_resistivity') }}" id="action_form" autocomplete="off">
-	<label for="s">Seebeck Coefficient: </label>
-	<input type="text" id="s" name="s">
-		<select name="s_units" id="s_units">
-			<option value="uV/K">&mu;V/K</option>
-			<option value="mV/K">mV/K</option>
-			<option value="V/K">V/K</option>
-		</select>
-	<br>
-	<br>
-	<label for="r">Resistivity: </label>
-	<input type="text" id="r" name="r">
-	<select name="r_units" id="r_units">
-		<option value="mohm-cm">m&Omega;-cm</option>
-		<option value="ohm-cm">&Omega;-cm</option>
-		<option value="ohm-m">&Omega;-m</option>
-	</select>
-	<br>
-	<br>
-	<label for="T">Temperature: </label>
-	<input type="text" id="T" name="T"><label for="T"></label>
-	<select name="T_units" id="T_units">
-		<option value="kelvin">K</option>
-		<option value="centigrade">C</option>
-	</select>
-	<br>
-	<br>
-	<label for="k">Thermal Conductivity: </label>
-	<input type="text" id="k" name="k"><label for="k"> (W/mK)</label><br><br>
-	
-	<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();">
+<form method="post" action="{{ url_for('zt') }}" id="action_form" autocomplete="off">
+	{{ zt_form.csrf_token }}
+	{{ zt_form.seebeck_zt_rho.label }}
+	{{ zt_form.seebeck_zt_rho }}
+	{{ zt_form.seebeck_zt_rho_units}}
+	{% for error in zt_form.seebeck_zt_rho.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ zt_form.resistivity_zt_rho.label }}
+	{{ zt_form.resistivity_zt_rho }}
+	{{ zt_form.resistivity_zt_rho_units }}
+	{% for error in zt_form.resistivity_zt_rho.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ zt_form.temperature_zt_rho.label }}
+	{{ zt_form.temperature_zt_rho }}
+	{{ zt_form.temperature_zt_rho_units }}
+	{% for error in zt_form.temperature_zt_rho.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	{{ zt_form.thermal_zt_rho.label }}
+	{{ zt_form.thermal_zt_rho }}
+	{{ zt_form.thermal_zt_rho_units }}
+	{% for error in zt_form.thermal_zt_rho.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br><br>
+	<input type="submit" name="zt_rho" value="Submit">
 </form>
 
-{% if error==True %}
-<p class="error">Error: {{error_message}}</p>
+{% if zT_result %}
+<p><b>zT: </b>{{ zT_result }} </p>
 {% endif %}
 
-{% if success==True %}
-<p>zT: {{output}}</p>
+{% if zT_result_error %}
+<p class="error">{{ zT_result_error }}</p>
 {% endif %}
 
 <hr>
 <h2>Excel sheet upload</h2>
 
-<form method="post" action="{{ url_for('zt_from_excel') }}" id="excel_form" enctype="multipart/form-data">
-	<label for="zt_file">File Upload (.xls, .xlsx): </label>
-	<input type="file" id="zt_file" name="zt_file"><br>
-	<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();">
+<form method="post" action="{{ url_for('zt') }}" id="excel_form" enctype="multipart/form-data">
+	{{ zt_excel_form.csrf_token }}
+	{{ zt_excel_form.file_zT.label }}
+	{{ zt_excel_form.file_zT }}
+	{% for error in zt_excel_form.file_zT.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<input type="submit" name="zt_excel" value="Submit"><br>
+	{% if overflow_error %}<span class="error">{{ overflow_error }}</span>{% endif %}
+	{% if index_error %}<span class="error">{{ index_error }}</span>{% endif %}
 </form>
 <br>
 
-{% if upload_error==True %}
-<p class="error">Error: {{upload_error_message}}</p>
+{% if zt_excel_path %}
+<a href="{{url_for('download', name=zt_excel_path )}}" class="download">Download Excel File</a>
 {% endif %}
 
-{% if upload_success==True %}
-<a href="{{url_for('download', name=download_path)}}" class="download">Download Excel File</a>
-{% endif %}
 
 <p>Please format excel files as shown in this <a href="../static/reference_files/zt_demo_sheet.xlsx">zt demo excel sheet</a><p>
 <p>Temperature units must be: K<br>

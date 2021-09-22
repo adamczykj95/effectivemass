@@ -3,59 +3,60 @@
 {% block content %}
 	<h1>Theoretical zT Calculator</h1>
 	<hr>
-	<form method="post" action="{{ url_for('theoretical_zt_calculated') }}" id="action_form" autocomplete="off">
-		
-		<label for="efm">Effective Mass: </label>
-		<input type="text" id="efm" name="efm">
-			<select name="efm_units" id="efm_units">
-				<option value="m*/m0">m*/m0</option>
-				<option value="kg">kg</option>
-			</select>
-		<br>
-		<br>
-		<label for="kl">Lattice Thermal: </label>
-		<input type="text" id="kl" name="kl">
-		<label for="kl">(W/mK) </label>
-		<br>
-		<br>
-		<label for="mu">Hall Mobility: </label>
-		<input type="text" id="mu" name="mu"><label for="mu"> (cm<sup>2</sup>/V&bull;s)</label>
-		<br>
-		<br>
-		<label for="T">Temperature: </label>
-		<input type="text" id="T" name="T">
-		<select name="T_units" id="T_units">
-			<option value="kelvin">K</option>
-			<option value="centigrade">C</option>
-		</select>
-		<br>
-		<br>
-		<label for="r">Scattering Parameter: </label>
-		<input type="text" id="r" name="r" value="-0.5"><label for="r"> -0.5 for acoustic phonon scattering</label><br><br>
-		
-		<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();" >
+	<form method="post" action="{{ url_for('theoretical_zt') }}" id="action_form" autocomplete="off">
+		{{ tzt_form.csrf_token }}
+		{{ tzt_form.efmass_tzt.label }}
+		{{ tzt_form.efmass_tzt }}
+		{{ tzt_form.efmass_units_tzt }}
+		{% for error in tzt_form.efmass_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.kl_tzt.label }}
+		{{ tzt_form.kl_tzt }}
+		{{ tzt_form.kl_units_tzt }}
+		{% for error in tzt_form.kl_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.mu_tzt.label }}
+		{{ tzt_form.mu_tzt }}
+		{{ tzt_form.mu_units_tzt }}
+		{% for error in tzt_form.mu_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.temperature_tzt.label }}
+		{{ tzt_form.temperature_tzt }}
+		{{ tzt_form.temperature_units_tzt }}
+		{% for error in tzt_form.temperature_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.r_tzt.label }}
+		{{ tzt_form.r_tzt }}
+		{% for error in tzt_form.r_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.cc_lo_tzt.label }}
+		{{ tzt_form.cc_lo_tzt }}
+		{% for error in tzt_form.cc_lo_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.cc_hi_tzt.label }}
+		{{ tzt_form.cc_hi_tzt }}
+		{% for error in tzt_form.cc_hi_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		{{ tzt_form.points_tzt.label }}
+		{{ tzt_form.points_tzt }}
+		{% for error in tzt_form.points_tzt.errors %}<span class="error">{{ error }}</span>{% endfor %}
+		<br><br>
+		<input type="submit" value="Submit" name="tzt" id="tzt_submit" onclick="document.getElementById('tzt_submit').value='Calculating...';">
 	</form>
 
-{% if error==True %}
-<p>Error: {{error_message}}</p>
+{% if error_message %}
+<p class="error">{{ warning_message }}</p>
 {% endif %}
 
-{% if warning==True %}
-<p class="error"><b>RuntimeWarning Encountered. Calculation Stopped.
-<br>
-Please input new values and try again.</b></p>
-{% endif %}
-
-{% if success==True %}
-<p><b>Theoretical zT:</b> {{zt}}
-<br>
-<b>Carrier concentration (cm<sup>-3</sup>) to achieve zT:</b> {{carrier}}
-<br>
-<a href="{{ url_for('theoretical_zt_plot', name=plot) }}"><img src="{{ url_for('theoretical_zt_plot', name=plot) }}" alt="" width="200" height="200"></a>
-<br>
-<a href="{{ url_for('download', name=excel) }}">Download excel of plotted data</a>
+{% if theoretical_zt_max_value %}
+<p>
+<b>Theoretical Max zT:</b> {{theoretical_zt_max_value}}<br>
+<b>Carrier Concentration (cm<sup>-3</sup>) for Theoretical Max zT:</b> {{carrier_for_zt_max_value}}<br>
+<a href="{{ url_for('download', name=full_file_path_plot) }}"><img src="{{ url_for('download', name=full_file_path_plot) }}" alt="" width="200" height="200"></a><br>
+<a href="{{ url_for('download', name=full_file_path_excel) }}">Download excel of plotted data</a><br>
 </p>
 {% endif %}
+
 
 
 
@@ -63,19 +64,22 @@ Please input new values and try again.</b></p>
 
 <h2>Excel sheet upload</h2>
 
-<form method="post" action="{{ url_for('theoretical_zt_from_excel') }}" id="excel_form" enctype="multipart/form-data">
-	<label for="tzt_file">File Upload (.xls, .xlsx): </label>
-	<input type="file" id="tzt_file" name="tzt_file"><br>
-	<input type="submit" value="Submit" onclick="this.disabled=true;this.value='Calculating, please wait...';this.form.submit();">
+<form method="post" action="{{ url_for('theoretical_zt') }}" id="excel_form" enctype="multipart/form-data">
+	{{ tzt_excel_form.csrf_token }}
+	{{ tzt_excel_form.file_tzt.label}}
+	{{ tzt_excel_form.file_tzt}}
+	<br>
+	<br>
+	<input type="submit" value="Submit" name="tzt_excel" id="tzt_excel_submit" onclick="document.getElementById('tzt_excel_submit').value='Calculating...';">
 </form>
 <br>
 
-{% if upload_error==True %}
-<p class="error">Error: {{upload_error_message}}</p>
+{% if error_message %}
+<p class="error">Error: {{error_message}}</p>
 {% endif %}
 
-{% if upload_success==True %}
-<a href="{{url_for('download', name=download_path)}}" class="download">Download Excel File</a>
+{% if tzt_excel_path %}
+<a href="{{url_for('download', name=tzt_excel_path)}}" class="download">Download Excel File</a>
 {% endif %}
 
 <p>Please format excel files as shown in this <a href="../static/reference_files/zt_max_demo_sheet.xlsx">theoretical zt max demo excel sheet</a><p>
