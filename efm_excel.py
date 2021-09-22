@@ -11,6 +11,7 @@ def calculate_spb(excel_file_path):
     temperature_data =          list(imported_data[0:,0])
     seebeck_data =              list(imported_data[0:,1])
     resistivity_data =          list(imported_data[0:,2])
+    resistivity_data =          list(imported_data[0:,2])
     carrier_data =              list(imported_data[0:,3])
     hall_mobility_data =        list(imported_data[0:,4])
     scattering_parameter_data = list(imported_data[0:,5])

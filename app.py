@@ -326,7 +326,7 @@ def spb_excel():
             filename = secure_filename(file.filename)
             full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             split_filename = full_file_path.rsplit('.',1)
-            timestamp = str(time.time())
+            timestamp = str(time.time()).replace('.','_')
             filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
             file.save(filename_timestamped)
             try:
@@ -422,7 +422,7 @@ def theoretical_zt():
             filename = secure_filename(file.filename)
             full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             split_filename = full_file_path.rsplit('.',1)
-            timestamp = str(time.time())
+            timestamp = str(time.time()).replace('.','_')
             filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
             file.save(filename_timestamped)
             try:
@@ -440,7 +440,7 @@ def theoretical_zt():
     
 @app.route('/plot/', methods=['GET', 'POST'])
 def plot():
-    timestamp = time.time()
+    timestamp = time.time().replace('.','_')
     form_items = ['xdata', 'ydata']
     if request.method == 'GET':
         return render_template('plot.html')
