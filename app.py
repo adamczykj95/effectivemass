@@ -373,7 +373,7 @@ def theoretical_zt():
     if 'tzt' in request.form:
         if request.method == "POST" and tzt_form.validate_on_submit():
             
-            timestamp = time.time().replace('.','_')
+            timestamp = str(time.time()).replace('.','_')
             # These values below are in standard units, uV/K, mOhm-cm, K, W/mK
             efmass = float(tzt_form.efmass_tzt.data) * float(tzt_form.efmass_units_tzt.data)
             kl = float(tzt_form.kl_tzt.data) * float(tzt_form.kl_units_tzt.data)
@@ -416,7 +416,7 @@ def theoretical_zt():
             flash(full_file_path_plot)
             flash(full_file_path_excel)
             
-    if 'tzt_excel' in request.form:
+    elif 'tzt_excel' in request.form:
         if request.method == "POST" and tzt_excel_form.validate_on_submit():
             file = tzt_excel_form.file_tzt.data
             filename = secure_filename(file.filename)
@@ -440,7 +440,7 @@ def theoretical_zt():
     
 @app.route('/plot/', methods=['GET', 'POST'])
 def plot():
-    timestamp = time.time().replace('.','_')
+    timestamp = str(time.time()).replace('.','_')
     form_items = ['xdata', 'ydata']
     if request.method == 'GET':
         return render_template('plot.html')
