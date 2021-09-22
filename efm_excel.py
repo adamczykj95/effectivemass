@@ -50,9 +50,9 @@ def calculate_spb(excel_file_path):
     
     # File naming part depedneing on if imported file is xls or xlsx
     if excel_file_path.endswith('.xls'):
-        export_path = excel_file_path[:-4] + '_spb.xls'
+        export_path = excel_file_path[:-4] + '.xls'
     if excel_file_path.endswith('.xlsx'):
-        export_path = excel_file_path[:-5] + '_spb.xlsx'
+        export_path = excel_file_path[:-5] + '.xlsx'
     
     df_export.to_excel(export_path, index=False)
 
@@ -91,9 +91,9 @@ def zt_excel(excel_file_path):
     
     # File naming part depedneing on if imported file is xls or xlsx
     if excel_file_path.endswith('.xls'):
-        export_path = excel_file_path[:-4] + '_spb.xls'
+        export_path = excel_file_path[:-4] + '.xls'
     if excel_file_path.endswith('.xlsx'):
-        export_path = excel_file_path[:-5] + '_spb.xlsx'
+        export_path = excel_file_path[:-5] + '.xlsx'
     
     df_export.to_excel(export_path, index=False)
 
@@ -137,9 +137,9 @@ def theoretical_zt_max_excel(excel_file_path):
     
     # File naming part depedneing on if imported file is xls or xlsx
     if excel_file_path.endswith('.xls'):
-        export_path = excel_file_path[:-4] + '_spb.xls'
+        export_path = excel_file_path[:-4] + '.xls'
     if excel_file_path.endswith('.xlsx'):
-        export_path = excel_file_path[:-5] + '_spb.xlsx'
+        export_path = excel_file_path[:-5] + '.xlsx'
     
     df_export.to_excel(export_path, index=False)
 

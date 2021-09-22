@@ -291,7 +291,7 @@ def zt():
             except OverflowError:
                 zT_result_error = 'Inputs resulted in an error. Try some more realistic numbers.'
                 flash(zT_result_error)
-    xdata
+
     elif 'zt_excel' in request.form:
         if request.method == 'POST' and zt_excel_form.validate_on_submit():
             file = zt_excel_form.file_zT.data
