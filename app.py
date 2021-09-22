@@ -141,9 +141,8 @@ def index():
             r = float(efmass_form.r_efm.data)
             
             try:
-                #rfl = efm.rfl_from_seebeck([seebeck], [r])[0]
-                rfl = q.enqueue(efm.rfl_from_seebeck, [seebeck], [r])
-                rfl = rfl[0]
+                rfl = efm.rfl_from_seebeck([seebeck], [r])[0]
+                rfl_1 = q.enqueue(efm.rfl_from_seebeck, [seebeck], [r])
                 efmass_result = "{:.3f}".format(efm.efm([rfl], [carrier], [temperature], [r])[0])
                 flash(efmass_result)
             except ZeroDivisionError:
