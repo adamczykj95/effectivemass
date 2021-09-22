@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, Markup
+from flask import Flask, render_template, request, url_for, flash, Markup, send_from_directory
 import efm
 import efm_excel
 import os
@@ -15,12 +15,16 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import InputRequired, ValidationError
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from periodictable import formula
+from rq import Queue
+from worker import conn
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
 app.config['SECRET_KEY'] = '3508sdfnl3nljnse20851j0adljnsd 0j123_+!#%(*@4j0182@$)*'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 1000*1000 # 1mb max file size
+
+q = Queue(connection=conn)
 
 def allowed_file(filename, extensions):
     # This function returns True if the extensions are allowed. 
@@ -137,7 +141,9 @@ def index():
             r = float(efmass_form.r_efm.data)
             
             try:
-                rfl = efm.rfl_from_seebeck([seebeck], [r])[0]
+                #rfl = efm.rfl_from_seebeck([seebeck], [r])[0]
+                rfl = q.enqueue(efm.rfl_from_seebeck, [seebeck], [r])
+                rfl = rfl[0]
                 efmass_result = "{:.3f}".format(efm.efm([rfl], [carrier], [temperature], [r])[0])
                 flash(efmass_result)
             except ZeroDivisionError:
@@ -372,6 +378,7 @@ def theoretical_zt():
     tzt_form = theoretical_zt_Form()
     tzt_excel_form = theoretical_zt_excel_Form()
     
+    
     if 'tzt' in request.form:
         if request.method == "POST" and tzt_form.validate_on_submit():
             
@@ -439,7 +446,8 @@ def theoretical_zt():
             except IndexError:
                 error_message = 'Index error occured.'
                 flash(error_message)
-        
+
+    
     return render_template('theoretical_zt.html', **locals())
     
 @app.route('/plot/', methods=['GET', 'POST'])

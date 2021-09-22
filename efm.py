@@ -3,6 +3,7 @@ import pandas as pd
 import scipy.integrate
 import scipy.interpolate
 from scipy.optimize import fsolve
+import requests
 
 # Some constants
 e = 1.60217653E-19 # Charge on electron (Coulomb)
@@ -222,5 +223,6 @@ def theoretical_zt_max(efm_list, kl_list, hall_mobility_list, temperature_list, 
             carrier_concentration_for_max_zt_list.append(carrier_concentration_list[max_index])
         
         return zt_max_list, carrier_concentration_for_max_zt_list, nested_carrier_concentration_lists, nested_theoretical_zt_lists
+
 
 
