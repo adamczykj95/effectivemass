@@ -373,7 +373,7 @@ def theoretical_zt():
     if 'tzt' in request.form:
         if request.method == "POST" and tzt_form.validate_on_submit():
             
-            timestamp = time.time()
+            timestamp = time.time().replace('.','_')
             # These values below are in standard units, uV/K, mOhm-cm, K, W/mK
             efmass = float(tzt_form.efmass_tzt.data) * float(tzt_form.efmass_units_tzt.data)
             kl = float(tzt_form.kl_tzt.data) * float(tzt_form.kl_units_tzt.data)

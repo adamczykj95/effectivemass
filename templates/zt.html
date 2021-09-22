@@ -44,6 +44,8 @@
 	{{ zt_excel_form.file_zT.label }}
 	{{ zt_excel_form.file_zT }}
 	{% for error in zt_excel_form.file_zT.errors %}<span class="error">{{ error }}</span>{% endfor %}
+	<br>
+	<br>
 	<input type="submit" name="zt_excel" value="Submit"><br>
 	{% if overflow_error %}<span class="error">{{ overflow_error }}</span>{% endif %}
 	{% if index_error %}<span class="error">{{ index_error }}</span>{% endif %}
