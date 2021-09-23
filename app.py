@@ -400,7 +400,7 @@ def theoretical_zt():
             upload_folder = app.config['UPLOAD_FOLDER']
             
             job = q.enqueue(efm_excel.tzt_job, [zt_max_args, upload_folder])
-            return redirect(url_for(wait, id=job.id))
+            return redirect(url_for('wait', id=job.id))
             
 
 
