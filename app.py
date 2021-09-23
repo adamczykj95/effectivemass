@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, Markup, send_from_directory, redirect
+from flask import Flask, render_template, request, url_for, flash, Markup, redirect
 import efm
 import efm_excel
 import os
@@ -432,12 +432,18 @@ def wait(id):
     job_query = Job.fetch(id, connection=conn)
     status = job_query.get_status()
     
-    if status in ['queued', 'started', 'deferred', 'failed']:
+    if status in ['queued', 'started', 'deferred']:
         wait_message = "Job is running still. Please wait..."
         flash(status)
         flash(wait_message)
         return render_template('wait.html', **locals(), refresh=True)
-    
+
+    if status == 'failed':
+        wait_message = 'Job failed.'
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=False)
+
     elif status == 'finished':
         wait_message = 'Job is complete!'
         result = job_query.result
@@ -609,6 +615,6 @@ def dulong_petit():
         return render_template("thermal.html", output=heat_capacity, dulong_petit_success=True)
 
 if __name__ == "__main__":
-    #app.debug = True
+    app.debug = True
     app.run()
     
