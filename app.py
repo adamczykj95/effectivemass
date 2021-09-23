@@ -399,7 +399,7 @@ def theoretical_zt():
             zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
             upload_folder = app.config['UPLOAD_FOLDER']
             
-            job = q.enqueue(efm_excel.tzt_job, *zt_max_args, upload_folder)
+            job = q.enqueue(efm_excel.tzt_job, zt_max_args, upload_folder)
             return redirect(url_for('wait', id=job.id))
 
             
