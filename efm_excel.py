@@ -156,7 +156,7 @@ def tzt_job(calculation_args, save_folder):
     carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
     
     full_file_path_excel = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
-    print('CURRENT WORKING DIRECTORY: ', os.listdir(getcwd()))
+    print('CURRENT WORKING DIRECTORY: ', os.listdir(os.getcwd()))
     export_data = [zt_max[2][0], zt_max[3][0]]
     export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
     df_export = pd.DataFrame(export_data).transpose()
