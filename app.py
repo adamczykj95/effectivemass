@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, Markup, redirect
+from flask import Flask, render_template, request, url_for, flash, Markup, redirect, send_from_directory
 import efm
 import efm_excel
 import os
@@ -42,10 +42,6 @@ def floatCheck(form, field):
     except ValueError:
         raise ValidationError('Input must be numeric')
 
-
-@app.route('/<name>')
-def download(name=''):
-    return send_from_directory(name)
 
 seebeck_units_choices = [(1, Markup('&mu;V/K')), (1E3, 'mV/K'), (1E6, 'V/K')] # Conversions to get to uV/K
 resistivity_units_choices = [(1, Markup('m&Omega;&bull;cm')), (1E3, Markup('&Omega;&bull;cm')), (1E5, Markup('&Omega;&bull;m'))] # Conversions to get to mOhm-cm
@@ -613,6 +609,10 @@ def dulong_petit():
         heat_capacity = "{:.3f}".format((3 * n_atoms * R) / (molar_mass * molar_mass_dict[molar_mass_units]))
         
         return render_template("thermal.html", output=heat_capacity, dulong_petit_success=True)
+
+@app.route('/<name>')
+def download(name=''):
+    return send_from_directory(name)
 
 if __name__ == "__main__":
     app.debug = True
