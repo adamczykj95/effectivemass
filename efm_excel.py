@@ -149,7 +149,7 @@ def theoretical_zt_max_excel(excel_file_path):
 
 def tzt_job(calculation_args, save_folder):
     timestamp = str(time.time()).replace('.','_')
-    zt_max = efm.theoretical_zt_max([efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points)  
+    zt_max = efm.theoretical_zt_max(*calculation_args)  
     theoretical_zt_max_value = format(float(zt_max[0][0]),".3f")
     carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
     
