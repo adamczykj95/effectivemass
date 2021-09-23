@@ -15,8 +15,12 @@ from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import InputRequired, ValidationError
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from periodictable import formula
+
+import requests
 from rq import Queue
+from rq.job import Job
 from worker import conn
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -381,7 +385,7 @@ def theoretical_zt():
     if 'tzt' in request.form:
         if request.method == "POST" and tzt_form.validate_on_submit():
             
-            timestamp = str(time.time()).replace('.','_')
+
             # These values below are in standard units, uV/K, mOhm-cm, K, W/mK
             efmass = float(tzt_form.efmass_tzt.data) * float(tzt_form.efmass_units_tzt.data)
             kl = float(tzt_form.kl_tzt.data) * float(tzt_form.kl_units_tzt.data)
@@ -392,38 +396,14 @@ def theoretical_zt():
             high_limit = abs(float(tzt_form.cc_hi_tzt.data))
             points = abs(int(tzt_form.points_tzt.data))
             
-            zt_max = efm.theoretical_zt_max([efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points)  
-            theoretical_zt_max_value = format(float(zt_max[0][0]),".3f")
-            carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
+            zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
+            upload_folder = app.config['UPLOAD_FOLDER']
             
-            full_file_path_excel = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
-            export_data = [zt_max[2][0], zt_max[3][0]]
-            export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
-            df_export = pd.DataFrame(export_data).transpose()
-            df_export.columns = export_labels
-            df_export.to_excel(full_file_path_excel, index=False)
-        
-            fig, ax = plt.subplots(1, figsize=(6,6))
-            ax.plot(zt_max[2][0], zt_max[3][0], color="#0000FF")
-            ax.scatter(zt_max[1], zt_max[0], color="#FF0000")
-            ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
-            ax.set_ylabel('Theoretical zT', fontsize=14)
-            ax.set_xscale('log')
-            plt.tight_layout()
-            full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.png')
-            plt.savefig(full_file_path_plot, dpi=500)
-            time.sleep(1)
+            job = q.enqueue(efm_excel.tzt_job, [zt_max_args, upload_folder])
+            return redirect(url_for(wait, id=job.id))
             
-            if float(theoretical_zt_max_value) > 100:
-                warning_message = "Data may be questionable (solver did not make good progress)"
-                flash(warning_message)
-            
-            success = True
-            flash(success)
-            flash(theoretical_zt_max_value)
-            flash(carrier_for_zt_max_value)
-            flash(full_file_path_plot)
-            flash(full_file_path_excel)
+
+
             
     elif 'tzt_excel' in request.form:
         if request.method == "POST" and tzt_excel_form.validate_on_submit():
@@ -448,7 +428,40 @@ def theoretical_zt():
 
     
     return render_template('theoretical_zt.html', **locals())
+
+@app.route('/wait/<string:id>', methods=['GET'])
+def wait(id):
+    job_query = Job.fetch(id, connection=conn)
+    status = job_query.get_status()
     
+    if status in ['queued', 'started', 'deferred', 'failed']:
+        wait_message = "Job is running still. Please wait..."
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=True)
+    
+    elif status == 'finished':
+        wait_message = 'Job is complete!'
+        result = job_query.result
+        
+        theoretical_zt_max_value = result[0]
+        carrier_for_zt_max_value = result[1]
+        full_file_path_excel = result[2]
+        full_file_path_plot = result[3]
+        oncomplete_message = result[4]
+        
+        flash(status)
+        flash(oncomplete_message)
+        flash(theoretical_zt_max_value)
+        flash(carrier_for_zt_max_value)
+        flash(full_file_path_plot)
+        flash(full_file_path_excel)
+        flash(wait_message)
+
+        return render_template('wait.html', **locals(), refresh=False)
+        
+
+
 @app.route('/plot/', methods=['GET', 'POST'])
 def plot():
     timestamp = str(time.time()).replace('.','_')

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Waiting room</title>
+	{% if refresh %}
+	<meta http-equiv="refresh" content="5">
+	{% endif %}
+</head>
+<body>
+
+<h>This is the waiting room for stuff</h>
+
+
+
+{% if wait_message %}
+<p>{{ wait_message }}</p>
+{% endif %}
+
+{% if status %}
+<p>Job Status: {{ status }}</p>
+{% endif %}
+
+{% if theoretical_zt_max_value %}
+<p>
+<b>Theoretical Max zT:</b> {{theoretical_zt_max_value}}<br>
+<b>Carrier Concentration (cm<sup>-3</sup>) for Theoretical Max zT:</b> {{carrier_for_zt_max_value}}<br>
+<a href="{{ url_for('download', name=full_file_path_plot) }}"><img src="{{ url_for('download', name=full_file_path_plot) }}" alt="" width="200" height="200"></a><br>
+<a href="{{ url_for('download', name=full_file_path_excel) }}">Download excel of plotted data</a><br>
+</p>
+{% endif %}
+
+
+
+
+</body>
+</html>
