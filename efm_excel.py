@@ -161,7 +161,7 @@ def tzt_job(calculation_args, save_folder):
     df_export = pd.DataFrame(export_data).transpose()
     df_export.columns = export_labels
     #df_export.to_excel(full_file_path_excel, index=False)
-    df_export.to_excel('static/uploads/TEST_FILE.xlsx', index=False)
+    df_export.to_excel('/static/uploads/TEST_FILE.xlsx', index=False)
 
     fig, ax = plt.subplots(1, figsize=(6,6))
     ax.plot(zt_max[2][0], zt_max[3][0], color="#0000FF")
@@ -172,7 +172,7 @@ def tzt_job(calculation_args, save_folder):
     plt.tight_layout()
     full_file_path_plot = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.png')
     #plt.savefig(full_file_path_plot, dpi=500)
-    plt.savefig('static/uploads/TEST_FILE.png', dpi=500)
+    plt.savefig('/static/uploads/TEST_FILE.png', dpi=500)
     
     if float(theoretical_zt_max_value) > 100:
         oncomplete_message = "Data may be questionable (solver did not make good progress)"
