@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import time
 import os
+import matplotlib.pyplot as plt
 
 def calculate_spb(excel_file_path):
     full_file_path = excel_file_path
