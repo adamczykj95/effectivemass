@@ -2,6 +2,7 @@ import efm
 import numpy as np
 import pandas as pd
 import time
+import os
 
 def calculate_spb(excel_file_path):
     full_file_path = excel_file_path
