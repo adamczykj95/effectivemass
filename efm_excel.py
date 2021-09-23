@@ -4,6 +4,8 @@ import pandas as pd
 import time
 import os
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
 def calculate_spb(excel_file_path):
     full_file_path = excel_file_path
@@ -156,6 +158,10 @@ def tzt_job(calculation_args, save_folder):
     carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
     
     full_file_path_excel = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
+
+    test_file = open(full_file_path_excel + '2', 'w')
+    test_file.close()
+
     print('FULL FILE PATH: ', full_file_path_excel)
     export_data = [zt_max[2][0], zt_max[3][0]]
     export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
