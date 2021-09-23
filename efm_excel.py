@@ -156,6 +156,7 @@ def tzt_job(calculation_args, save_folder):
     carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
     
     full_file_path_excel = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
+    print('FULL EXCEL FILE PATH: ', full_file_path_excel)
     export_data = [zt_max[2][0], zt_max[3][0]]
     export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
     df_export = pd.DataFrame(export_data).transpose()
@@ -171,8 +172,7 @@ def tzt_job(calculation_args, save_folder):
     ax.set_xscale('log')
     plt.tight_layout()
     full_file_path_plot = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.png')
-    #plt.savefig(full_file_path_plot, dpi=500)
-    plt.savefig('/static/uploads/TEST_FILE.png', dpi=500)
+    plt.savefig(full_file_path_plot, dpi=500)
     
     if float(theoretical_zt_max_value) > 100:
         oncomplete_message = "Data may be questionable (solver did not make good progress)"

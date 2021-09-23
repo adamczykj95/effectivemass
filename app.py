@@ -448,9 +448,6 @@ def wait(id):
         full_file_path_plot = result[3]
         oncomplete_message = result[4]
         
-        print(full_file_path_excel)
-        print(full_file_path_plot)
-        
         flash(status)
         flash(oncomplete_message)
         flash(theoretical_zt_max_value)
