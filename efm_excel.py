@@ -152,6 +152,7 @@ def theoretical_zt_max_excel(excel_file_path):
     return export_path
 
 def write_file():
+    __name__ = '__main__'
     f = open("static/uploads/demo_file.txt", "w")
     f.write("some content in the file")
     f.close()
