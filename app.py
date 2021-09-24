@@ -393,12 +393,8 @@ def theoretical_zt():
             points = abs(int(tzt_form.points_tzt.data))
             
             zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
-            upload_folder = app.config['UPLOAD_FOLDER']
             
-            test_file = open('static/uploads/file_written_from_main.txt', 'w')
-            test_file.close()
-            
-            job = q.enqueue(efm_excel.tzt_job, zt_max_args, upload_folder)
+            job = q.enqueue(efm_excel.tzt_job, zt_max_args)
             return redirect(url_for('wait', id=job.id))
 
             
@@ -446,12 +442,34 @@ def wait(id):
     elif status == 'finished':
         wait_message = 'Job is complete!'
         result = job_query.result
+
+        theoretical_zt_max_value = format(float(result[0][0]),".3f")
+        carrier_for_zt_max_value = "{:0.3e}".format(float(result[1][0]))
         
-        theoretical_zt_max_value = result[0]
-        carrier_for_zt_max_value = result[1]
-        full_file_path_excel = result[2]
-        full_file_path_plot = result[3]
-        oncomplete_message = result[4]
+        timestamp = str(time.time()).replace('.','_')
+        full_file_path_excel = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
+
+        print('FULL FILE PATH: ', full_file_path_excel)
+        export_data = [result[2][0], result[3][0]]
+        export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
+        df_export = pd.DataFrame(export_data).transpose()
+        df_export.columns = export_labels
+        df_export.to_excel(full_file_path_excel, index=False)
+
+        fig, ax = plt.subplots(1, figsize=(6,6))
+        ax.plot(result[2][0], result[3][0], color="#0000FF")
+        ax.scatter(result[1], result[0], color="#FF0000")
+        ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
+        ax.set_ylabel('Theoretical zT', fontsize=14)
+        ax.set_xscale('log')
+        plt.tight_layout()
+        full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.png')
+        plt.savefig(full_file_path_plot, dpi=500)
+        
+        if float(theoretical_zt_max_value) > 100:
+            oncomplete_message = "Data may be questionable (solver did not make good progress)"
+        else:
+            oncomplete_message = "Data quality is good"
         
         flash(status)
         flash(oncomplete_message)

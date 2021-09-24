@@ -151,37 +151,8 @@ def theoretical_zt_max_excel(excel_file_path):
 
     return export_path
 
-def tzt_job(calculation_args, save_folder):
-    timestamp = str(time.time()).replace('.','_')
-    zt_max = efm.theoretical_zt_max(*calculation_args)  
-    theoretical_zt_max_value = format(float(zt_max[0][0]),".3f")
-    carrier_for_zt_max_value = "{:0.3e}".format(float(zt_max[1][0]))
+def tzt_job(calculation_args):
+    zt_max = efm.theoretical_zt_max(*calculation_args)
     
-    full_file_path_excel = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
+    return zt_max
 
-    test_file = open(full_file_path_excel + '2', 'w')
-    test_file.close()
-
-    print('FULL FILE PATH: ', full_file_path_excel)
-    export_data = [zt_max[2][0], zt_max[3][0]]
-    export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
-    df_export = pd.DataFrame(export_data).transpose()
-    df_export.columns = export_labels
-    df_export.to_excel(full_file_path_excel, index=False)
-
-    fig, ax = plt.subplots(1, figsize=(6,6))
-    ax.plot(zt_max[2][0], zt_max[3][0], color="#0000FF")
-    ax.scatter(zt_max[1], zt_max[0], color="#FF0000")
-    ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
-    ax.set_ylabel('Theoretical zT', fontsize=14)
-    ax.set_xscale('log')
-    plt.tight_layout()
-    full_file_path_plot = os.path.join(save_folder, 'theoretical_zt_plot_' + str(timestamp) + '.png')
-    plt.savefig(full_file_path_plot, dpi=500)
-    
-    if float(theoretical_zt_max_value) > 100:
-        oncomplete_message = "Data may be questionable (solver did not make good progress)"
-    else:
-        oncomplete_message = "Data quality is good"
-        
-    return theoretical_zt_max_value, carrier_for_zt_max_value, full_file_path_excel, full_file_path_plot, oncomplete_message
