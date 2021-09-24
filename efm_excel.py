@@ -155,4 +155,5 @@ def write_file():
     f = open("static/uploads/demo_file.txt", "w")
     f.write("some content in the file")
     f.close()
+    print('efm_excel.py NAME: ', __name__)
 
