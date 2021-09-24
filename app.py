@@ -394,8 +394,10 @@ def theoretical_zt():
             
             zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
             
-            job = q.enqueue(efm_excel.tzt_job, zt_max_args)
-            return redirect(url_for('wait', id=job.id))
+            test_job = q.enqueue(efm_excel.write_file)
+            
+            job = q.enqueue(efm.theoretical_zt_max, *zt_max_args)
+            return redirect(url_for('wait_tzt', id=job.id))
 
             
     elif 'tzt_excel' in request.form:
@@ -423,7 +425,7 @@ def theoretical_zt():
     return render_template('theoretical_zt.html', **locals())
 
 @app.route('/wait/<string:id>', methods=['GET'])
-def wait(id):
+def wait_tzt(id):
     job_query = Job.fetch(id, connection=conn)
     status = job_query.get_status()
     
@@ -636,6 +638,6 @@ def download(name=''):
     return send_from_directory(name)
 
 if __name__ == "__main__":
-    app.debug = True
+    #app.debug = True
     app.run()
     

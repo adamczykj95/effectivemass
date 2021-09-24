@@ -151,8 +151,8 @@ def theoretical_zt_max_excel(excel_file_path):
 
     return export_path
 
-def tzt_job(calculation_args):
-    zt_max = efm.theoretical_zt_max(*calculation_args)
-    
-    return zt_max
+def write_file():
+    f = open("static/uploads/demo_file.txt", "w")
+    f.write("some content in the file")
+    f.close()
 
