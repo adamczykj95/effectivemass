@@ -21,6 +21,7 @@ from rq import Queue
 from rq.job import Job
 from worker import conn
 
+import boto3
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -394,6 +395,11 @@ def theoretical_zt():
             
             zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
             file_write_location = app.config['UPLOAD_FOLDER']
+            
+            upload_data = open('moop.py', 'rb')
+            s3 = boto3.resource('s3')
+            bucket = 'bucketeer-88c06953-e032-4084-8845-f22694bbd8b4'
+            s3.Bucket(bucket).put_object(Key='moop.py', Body=upload_data, ACL='public-read')
             
             job = q.enqueue(efm_excel.theoretical_zt_max_job, (zt_max_args), file_write_location)
             return redirect(url_for('wait_tzt', id=job.id))
