@@ -393,10 +393,9 @@ def theoretical_zt():
             points = abs(int(tzt_form.points_tzt.data))
             
             zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
+            file_write_location = app.config['UPLOAD_FOLDER']
             
-            test_job = q.enqueue(efm_excel.write_file)
-            
-            job = q.enqueue(efm.theoretical_zt_max, *zt_max_args)
+            job = q.enqueue(efm_excel.theoretical_zt_max_job, (zt_max_args), file_write_location)
             return redirect(url_for('wait_tzt', id=job.id))
 
             
@@ -443,42 +442,25 @@ def wait_tzt(id):
 
     elif status == 'finished':
         wait_message = 'Job is complete!'
-        result = job_query.result
-
-        theoretical_zt_max_value = format(float(result[0][0]),".3f")
-        carrier_for_zt_max_value = "{:0.3e}".format(float(result[1][0]))
+        result = job_query.result # This should be whatever the function returns
         
-        timestamp = str(time.time()).replace('.','_')
-        full_file_path_excel = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.xlsx')
-
-        print('FULL FILE PATH: ', full_file_path_excel)
-        export_data = [result[2][0], result[3][0]]
-        export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
-        df_export = pd.DataFrame(export_data).transpose()
-        df_export.columns = export_labels
-        df_export.to_excel(full_file_path_excel, index=False)
-
-        fig, ax = plt.subplots(1, figsize=(6,6))
-        ax.plot(result[2][0], result[3][0], color="#0000FF")
-        ax.scatter(result[1], result[0], color="#FF0000")
-        ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
-        ax.set_ylabel('Theoretical zT', fontsize=14)
-        ax.set_xscale('log')
-        plt.tight_layout()
-        full_file_path_plot = os.path.join(app.config['UPLOAD_FOLDER'], 'theoretical_zt_plot_' + str(timestamp) + '.png')
-        plt.savefig(full_file_path_plot, dpi=500)
+        zt_max = result[0]
+        carrier_for_zt_max = result[1]
         
-        if float(theoretical_zt_max_value) > 100:
+        plot_location = result[2] # This plot location has to be pointed at the correct public S3 bucket link
+        excel_location = result[3] # This excel location has to be pointed at the correct public S3 bucket link
+        
+        if float(zt_max) > 100:
             oncomplete_message = "Data may be questionable (solver did not make good progress)"
         else:
             oncomplete_message = "Data quality is good"
         
         flash(status)
         flash(oncomplete_message)
-        flash(theoretical_zt_max_value)
-        flash(carrier_for_zt_max_value)
-        flash(full_file_path_plot)
-        flash(full_file_path_excel)
+        flash(zt_max)
+        flash(carrier_for_zt_max)
+        flash(plot_location)
+        flash(excel_location)
         flash(wait_message)
 
         return render_template('wait.html', **locals(), refresh=False)
@@ -638,6 +620,6 @@ def download(name=''):
     return send_from_directory(name)
 
 if __name__ == "__main__":
-    #app.debug = True
+    app.debug = True
     app.run()
     

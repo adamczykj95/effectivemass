@@ -6,6 +6,8 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
+import boto3
+
 
 def calculate_spb(excel_file_path):
     full_file_path = excel_file_path
@@ -105,6 +107,50 @@ def zt_excel(excel_file_path):
 
     return export_path
 
+def theoretical_zt_max_job(zt_max_args, file_write_location):
+        
+        tzt = efm.theoretical_zt_max(*zt_max_args)
+
+        theoretical_zt_max_value = format(float(tzt[0][0]),".3f")
+        carrier_for_zt_max_value = "{:0.3e}".format(float(tzt[1][0]))
+
+        timestamp = str(time.time()).replace('.','_')
+        excel_file_name = 'theoretical_zt_plot_' + str(timestamp) + '.xlsx'
+        full_file_path_excel = os.path.join(file_write_location, excel_file_name)
+        export_data = [tzt[2][0], tzt[3][0]]
+        export_labels = ['Carrier Concentration (cm^-3)', 'Theoretical zT']
+        df_export = pd.DataFrame(export_data).transpose()
+        df_export.columns = export_labels
+        df_export.to_excel(full_file_path_excel, index=False)
+
+        fig, ax = plt.subplots(1, figsize=(6,6))
+        ax.plot(tzt[2][0], tzt[3][0], color="#0000FF")
+        ax.scatter(tzt[1], tzt[0], color="#FF0000")
+        ax.set_xlabel('Carrier Concentration (cm$^{-3}$)', fontsize=14)
+        ax.set_ylabel('Theoretical zT', fontsize=14)
+        ax.set_xscale('log')
+        plt.tight_layout()
+        plot_file_name = 'theoretical_zt_plot_' + str(timestamp) + '.png'
+        full_file_path_plot = os.path.join(file_write_location, plot_file_name)
+        plt.savefig(full_file_path_plot, dpi=500)
+        
+        plot_upload_data = open(full_file_path_plot, 'rb')
+        excel_upload_data = open(full_file_path_excel, 'rb')
+        
+        s3 = boto3.resource('s3')
+        bucket = 'bucketeer-88c06953-e032-4084-8845-f22694bbd8b4'
+        s3.Bucket(bucket).put_object(Key=plot_file_name, Body=plot_upload_data, ACL='public-read', ContentType='image/jpeg') # upload the plot
+        s3.Bucket(bucket).put_object(Key=excel_file_name, Body=excel_upload_data, ACL='public-read') # upload the excel
+        
+        plot_link = 'https://bucketeer-88c06953-e032-4084-8845-f22694bbd8b4.s3.amazonaws.com/' + plot_file_name
+        excel_link = 'https://bucketeer-88c06953-e032-4084-8845-f22694bbd8b4.s3.amazonaws.com/' + excel_file_name
+        
+        plot_upload_data.close()
+        excel_upload_data.close()
+        
+        return theoretical_zt_max_value, carrier_for_zt_max_value, plot_link, excel_link
+        
+
 def theoretical_zt_max_excel(excel_file_path):
     full_file_path = excel_file_path
     imported_data = pd.read_excel(full_file_path)
@@ -152,9 +198,8 @@ def theoretical_zt_max_excel(excel_file_path):
     return export_path
 
 def write_file():
-    __name__ = '__main__'
     f = open("static/uploads/demo_file.txt", "w")
     f.write("some content in the file")
     f.close()
-    print('efm_excel.py NAME: ', __name__)
+    print('FILE WRITE FUNCTION RAN')
 
