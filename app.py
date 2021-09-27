@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, Markup, redirect, send_from_directory
+from flask import Flask, render_template, request, url_for, flash, Markup, redirect, send_from_directory, render_template_string
 import efm
 import efm_excel
 import os
@@ -382,7 +382,6 @@ def theoretical_zt():
     if 'tzt' in request.form:
         if request.method == "POST" and tzt_form.validate_on_submit():
             
-
             # These values below are in standard units, uV/K, mOhm-cm, K, W/mK
             efmass = float(tzt_form.efmass_tzt.data) * float(tzt_form.efmass_units_tzt.data)
             kl = float(tzt_form.kl_tzt.data) * float(tzt_form.kl_units_tzt.data)
@@ -396,41 +395,41 @@ def theoretical_zt():
             zt_max_args = [efmass], [kl], [mu], [temperature], [r], low_limit, high_limit, points
             file_write_location = app.config['UPLOAD_FOLDER']
             
-            upload_data = open('moop.py', 'rb')
-            s3 = boto3.resource('s3')
-            bucket = 'bucketeer-88c06953-e032-4084-8845-f22694bbd8b4'
-            s3.Bucket(bucket).put_object(Key='moop.py', Body=upload_data, ACL='public-read')
-            
             job = q.enqueue(efm_excel.theoretical_zt_max_job, (zt_max_args), file_write_location)
-            return redirect(url_for('wait_tzt', id=job.id))
+            
+            return redirect(url_for('tzt_wait', id=job.id))
 
             
     elif 'tzt_excel' in request.form:
         if request.method == "POST" and tzt_excel_form.validate_on_submit():
             file = tzt_excel_form.file_tzt.data
             filename = secure_filename(file.filename)
-            full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            split_filename = full_file_path.rsplit('.',1)
+            file_write_location = app.config['UPLOAD_FOLDER']
+            
+            full_file_path = os.path.join(file_write_location, filename)
+            split_filepath = full_file_path.rsplit('.',1)
             timestamp = str(time.time()).replace('.','_')
-            filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
-            file.save(filename_timestamped)
-            time.sleep(1)
-            try:
-                tzt_excel_path = efm_excel.theoretical_zt_max_excel(filename_timestamped)
-                flash(tzt_excel_path)
-                
-            except OverflowError:
-                error_message = 'Overflow error occured.'
-                flash(error_message)
-            except IndexError:
-                error_message = 'Index error occured.'
-                flash(error_message)
+            filename_timestamped = timestamp + '_' + filename
+            filepath_timestamped = split_filepath[0] + '_' + timestamp + '.' + split_filepath[1]
+
+            file.save(filepath_timestamped)
+
+            imported_data = pd.read_excel(filepath_timestamped)
+            imported_data = imported_data.fillna('0')
+            imported_data = imported_data.values
+    
+            if len(imported_data[0]) != 5:
+                raise IndexError
+            
+            job = q.enqueue(efm_excel.theoretical_zt_max_excel, imported_data, filename_timestamped, filepath_timestamped)
+            
+            return redirect(url_for('tzt_excel_wait', id=job.id))
 
     
     return render_template('theoretical_zt.html', **locals())
 
-@app.route('/wait/<string:id>', methods=['GET'])
-def wait_tzt(id):
+@app.route('/tzt-wait/<string:id>', methods=['GET'])
+def tzt_wait(id):
     job_query = Job.fetch(id, connection=conn)
     status = job_query.get_status()
     
@@ -447,6 +446,7 @@ def wait_tzt(id):
         return render_template('wait.html', **locals(), refresh=False)
 
     elif status == 'finished':
+        tzt = True
         wait_message = 'Job is complete!'
         result = job_query.result # This should be whatever the function returns
         
@@ -461,8 +461,8 @@ def wait_tzt(id):
         else:
             oncomplete_message = "Data quality is good"
         
+        flash(tzt)
         flash(status)
-        flash(oncomplete_message)
         flash(zt_max)
         flash(carrier_for_zt_max)
         flash(plot_location)
@@ -470,8 +470,35 @@ def wait_tzt(id):
         flash(wait_message)
 
         return render_template('wait.html', **locals(), refresh=False)
-        
 
+@app.route('/tzt-excel-wait/<string:id>', methods=['GET'])
+def tzt_excel_wait(id):
+    job_query = Job.fetch(id, connection=conn)
+    status = job_query.get_status()
+    
+    if status in ['queued', 'started', 'deferred']:
+        wait_message = "Job is running still. Please wait..."
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=True)
+
+    if status == 'failed':
+        wait_message = 'Job failed.'
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=False)
+
+    elif status == 'finished':
+        tzt_excel = True
+        wait_message = 'Job is complete!'
+        excel_location = job_query.result # This should be whatever the function returns
+        
+        flash(tzt_excel)
+        flash(status)
+        flash(excel_location)
+        flash(wait_message)
+
+        return render_template('wait.html', **locals(), refresh=False)
 
 @app.route('/plot/', methods=['GET', 'POST'])
 def plot():

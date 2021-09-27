@@ -108,7 +108,6 @@ def zt_excel(excel_file_path):
     return export_path
 
 def theoretical_zt_max_job(zt_max_args, file_write_location):
-        
         tzt = efm.theoretical_zt_max(*zt_max_args)
 
         theoretical_zt_max_value = format(float(tzt[0][0]),".3f")
@@ -151,14 +150,7 @@ def theoretical_zt_max_job(zt_max_args, file_write_location):
         return theoretical_zt_max_value, carrier_for_zt_max_value, plot_link, excel_link
         
 
-def theoretical_zt_max_excel(excel_file_path):
-    full_file_path = excel_file_path
-    imported_data = pd.read_excel(full_file_path)
-    imported_data = imported_data.fillna('0')
-    imported_data = imported_data.values
-    
-    if len(imported_data[0]) != 5:
-        raise IndexError
+def theoretical_zt_max_excel(imported_data, filename_timestamped, filepath_timestamped):
     
     temperature_data = list(imported_data[0:,0])
     effmass_data =     list(imported_data[0:,1])
@@ -182,24 +174,31 @@ def theoretical_zt_max_excel(excel_file_path):
     'Hall mobility (cm^2/V*s)',
     'scattering parameter',
     'theoretical max zT',
-    'carrier concentration for theoretical max zT']
+    'carrier concentration for theoretical max zT (cm-3)']
     
     df_export = pd.DataFrame(export_data).transpose()
     df_export.columns = export_labels
     
-    # File naming part depending on if imported file is xls or xlsx
-    if excel_file_path.endswith('.xls'):
-        export_path = excel_file_path[:-4] + '.xls'
-    if excel_file_path.endswith('.xlsx'):
-        export_path = excel_file_path[:-5] + '.xlsx'
-    
+    #File naming part depending on if imported file is xls or xlsx
+    if filepath_timestamped.endswith('.xls'):
+        export_path = filepath_timestamped[:-4] + '.xls'
+    if filepath_timestamped.endswith('.xlsx'):
+        export_path = filepath_timestamped[:-5] + '.xlsx'
+
     df_export.to_excel(export_path, index=False)
+    
+    excel_upload_data = open(export_path, 'rb') # Open the file into memory
+    
+    s3 = boto3.resource('s3')
+    bucket = 'bucketeer-88c06953-e032-4084-8845-f22694bbd8b4'
+    s3.Bucket(bucket).put_object(Key=filename_timestamped, Body=excel_upload_data, ACL='public-read') # upload the excel
+    
+    excel_link = 'https://bucketeer-88c06953-e032-4084-8845-f22694bbd8b4.s3.amazonaws.com/' + filename_timestamped
+    
+    excel_upload_data.close()
+    
+    return excel_link
 
-    return export_path
 
-def write_file():
-    f = open("static/uploads/demo_file.txt", "w")
-    f.write("some content in the file")
-    f.close()
-    print('FILE WRITE FUNCTION RAN')
+
 
