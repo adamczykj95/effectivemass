@@ -371,23 +371,60 @@ def spb_excel():
             full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             split_filename = full_file_path.rsplit('.',1)
             timestamp = str(time.time()).replace('.','_')
-            filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
-            file.save(filename_timestamped)
-            time.sleep(1)
-            try:
-                spb_excel_path = efm_excel.calculate_spb(filename_timestamped)
-                flash(spb_excel_path)
-                
-            except OverflowError:
-                error_message = 'overflow error'
-                flash(error_message)
+            filepath_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
+            filename_timestamped = timestamp + '_' + filename
+            file.save(filepath_timestamped)
+            
+            imported_data = pd.read_excel(filepath_timestamped)
+            imported_data = imported_data.fillna('0')
+            imported_data = imported_data.values
+            
+            temperature_data =          list(imported_data[0:,0])
+            seebeck_data =              list(imported_data[0:,1])
+            resistivity_data =          list(imported_data[0:,2])
+            carrier_data =              list(imported_data[0:,3])
+            hall_mobility_data =        list(imported_data[0:,4])
+            scattering_parameter_data = list(imported_data[0:,5])
+            
+            spb_args = [temperature_data, seebeck_data, resistivity_data, carrier_data, hall_mobility_data, scattering_parameter_data]
 
-            except IndexError:
-                error_message = 'index error'
-                flash(error_message)
+            job = q.enqueue(efm_excel.calculate_spb, filename_timestamped, filepath_timestamped, spb_args)
+            
+            return redirect(url_for('spb_excel_wait', id=job.id))
+            
                 
     return render_template('spb_excel.html', **locals())
+
+
+@app.route('/spb-excel-wait/<string:id>', methods=['GET'])
+def spb_excel_wait(id):
+    job_query = Job.fetch(id, connection=conn)
+    status = job_query.get_status()
     
+    if status in ['queued', 'started', 'deferred']:
+        wait_message = "Job is running still. Please wait..."
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=True)
+
+    if status == 'failed':
+        wait_message = 'Job failed.'
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=False)
+
+    elif status == 'finished':
+        spb_excel = True
+        wait_message = 'Job is complete!'
+        excel_location = job_query.result # This should be whatever the function returns
+        
+        flash(spb_excel)
+        flash(status)
+        flash(excel_location)
+        flash(wait_message)
+
+        return render_template('wait.html', **locals(), refresh=False)
+
 class theoretical_zt_Form(FlaskForm):
     efmass_tzt = StringField(Markup('Effective mass:'), validators=[InputRequired('Effective mass input required'), floatCheck])
     efmass_units_tzt = SelectField(u'Effective mass units', choices=effectivemass_units_choices)
