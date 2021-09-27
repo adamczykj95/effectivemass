@@ -66,26 +66,14 @@ def calculate_spb(excel_file_path):
 
     return export_path
     
-def zt_excel(excel_file_path):
-    full_file_path = excel_file_path
-    imported_data = pd.read_excel(full_file_path)
-    imported_data = imported_data.fillna('0')
-    imported_data = imported_data.values
-    
-    if len(imported_data[0]) != 4:
-        raise IndexError
-    
-    temperature_data =          list(imported_data[0:,0])
-    seebeck_data =              list(imported_data[0:,1])
-    resistivity_data =          list(imported_data[0:,2])
-    thermal_data =              list(imported_data[0:,3])
+def zt_excel(zt_args, filename_timestamped, filepath_timestamped):
 
-    zt_data = efm.zt(seebeck_data, temperature_data, resistivity_data, thermal_data)
+    zt_data = efm.zt(*zt_args)
     
-    export_data = [temperature_data, 
-    seebeck_data, 
-    resistivity_data, 
-    thermal_data,
+    export_data = [zt_args[0], 
+    zt_args[1], 
+    zt_args[2], 
+    zt_args[3],
     zt_data]
     
     export_labels = ['temperature (K)',
@@ -98,14 +86,24 @@ def zt_excel(excel_file_path):
     df_export.columns = export_labels
     
     # File naming part depedneing on if imported file is xls or xlsx
-    if excel_file_path.endswith('.xls'):
-        export_path = excel_file_path[:-4] + '.xls'
-    if excel_file_path.endswith('.xlsx'):
-        export_path = excel_file_path[:-5] + '.xlsx'
+    if filepath_timestamped.endswith('.xls'):
+        export_path = filepath_timestamped[:-4] + '.xls'
+    if filepath_timestamped.endswith('.xlsx'):
+        export_path = filepath_timestamped[:-5] + '.xlsx'
     
     df_export.to_excel(export_path, index=False)
+    
+    excel_upload_data = open(export_path, 'rb') # Open the file into memory
+    
+    s3 = boto3.resource('s3')
+    bucket = 'bucketeer-88c06953-e032-4084-8845-f22694bbd8b4'
+    s3.Bucket(bucket).put_object(Key=filename_timestamped, Body=excel_upload_data, ACL='public-read') # upload the excel
+    
+    excel_link = 'https://bucketeer-88c06953-e032-4084-8845-f22694bbd8b4.s3.amazonaws.com/' + filename_timestamped
+    
+    excel_upload_data.close()
 
-    return export_path
+    return excel_link
 
 def theoretical_zt_max_job(zt_max_args, file_write_location):
         tzt = efm.theoretical_zt_max(*zt_max_args)

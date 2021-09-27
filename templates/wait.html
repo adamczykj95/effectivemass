@@ -21,6 +21,14 @@
 
 
 {% if status == 'finished' %}
+	{% if zt_excel == True %}
+	<p>
+	<a href="{{ excel_location }}">Download excel file of calculated data</a><br>
+	</p>
+	{% endif %}
+	
+	
+	
 	{% if tzt == True %}
 	<p>
 	<b>Theoretical Max zT:</b> {{zt_max}}<br>
@@ -29,6 +37,8 @@
 	<a href="{{ excel_location }}">Download excel of plotted data</a><br>
 	</p>
 	{% endif %}
+	
+	
 	
 	{% if tzt_excel == True %}
 	<p>

@@ -305,20 +305,57 @@ def zt():
             full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             split_filename = full_file_path.rsplit('.',1)
             timestamp = str(time.time()).replace('.','_')
-            filename_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
-            file.save(filename_timestamped)
-            time.sleep(1)
+            filepath_timestamped = split_filename[0] + '_' + timestamp + '.' + split_filename[1]
+            filename_timestamped = timestamp + '_' + filename
+            file.save(filepath_timestamped)
             
-            try:
-                zt_excel_path = efm_excel.zt_excel(filename_timestamped)
-                flash('Upload and calculation succeeded.')
-            except OverflowError:
-                overflow_error = 'Excel file not formatted correctly (OverflowError)'
-                flash(overflow_error)
-            except IndexError:
-                index_error = 'Excel file not formatted correctly (IndexError)'
-                flash(index_error)
+            imported_data = pd.read_excel(filepath_timestamped)
+            imported_data = imported_data.fillna('0')
+            imported_data = imported_data.values
+            
+            if len(imported_data[0]) != 4:
+                raise IndexError
+            
+            temperature_data =          list(imported_data[0:,0])
+            seebeck_data =              list(imported_data[0:,1])
+            resistivity_data =          list(imported_data[0:,2])
+            thermal_data =              list(imported_data[0:,3])
+
+            zt_args = [temperature_data, seebeck_data, resistivity_data, thermal_data]
+            job = q.enqueue(efm_excel.zt_excel, zt_args, filename_timestamped, filepath_timestamped)
+            
+            return redirect(url_for('zt_excel_wait', id=job.id))
+            
     return render_template("zt.html", **locals())
+
+@app.route('/zt-wait/<string:id>', methods=['GET'])
+def zt_excel_wait(id):
+    job_query = Job.fetch(id, connection=conn)
+    status = job_query.get_status()
+    
+    if status in ['queued', 'started', 'deferred']:
+        wait_message = "Job is running still. Please wait..."
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=True)
+
+    if status == 'failed':
+        wait_message = 'Job failed.'
+        flash(status)
+        flash(wait_message)
+        return render_template('wait.html', **locals(), refresh=False)
+
+    elif status == 'finished':
+        zt_excel = True
+        wait_message = 'Job is complete!'
+        excel_location = job_query.result # This should be whatever the function returns
+        
+        flash(zt_excel)
+        flash(status)
+        flash(excel_location)
+        flash(wait_message)
+
+        return render_template('wait.html', **locals(), refresh=False)
             
 class spb_excel_Form(FlaskForm):
     file_spb = FileField('File upload', validators=[FileRequired('File must be selected'), FileAllowed(['xls','xlsx'], '.xls or .xlsx files only')])
