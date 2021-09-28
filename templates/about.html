@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>Citing this webpage</h1>
+<p>Citation texts will go here</p>
+
+<hr id="contributors">
+<h1>Contributors</h1>
+
+<ul>
+	<li>Jesse M. Adamczyk 	<a href="">Google Scholar</a></li>
+	<li>Caitlin M. Crawford <a href="">Google Scholar</a></li>
+	<li>Kamil Ciesielski 	<a href="">Google Scholar</a></li>
+	<li>Eric S. Toberer 	<a href="">Google Scholar</a></li>
+</ul>
+
+<hr anchor="#backend">
+<h1>Backend Code</h1>
+
+<p>
+This code is written using Python and Flask<br>
+The source code for the calculations is available on github here: <a href="">Effective Mass Models</a>
+</p>
+
+<hr id="constants">
+<div class="about_container">
+<h1>Constants</h1>
+	<img src="../static/reference_files/e.png",  height=30><br>
+	<img src="../static/reference_files/kb.png",  height=35><br>
+	<img src="../static/reference_files/hbar.png",  height=30><br>
+	<img src="../static/reference_files/m.png",  height=35><br>
+	<img src="../static/reference_files/planck.png",  height=70><br>
+	<img src="../static/reference_files/lamb.png",  height=35><br>
+	
+</div>
+
+<hr id="zt_max">
+<div class="about_container">
+<h1>Theoretical zT Calculator</h1>
+<ol>
+	<li>Assume a fixed value of effective mass</li>
+	<li>Generate an artificial list of carrier concentration values (default is 10<sup>16</sup> to 10<sup>21</sup> cm<sup>-3</sup>)</li>
+	<li>Use the fixed effective mass value and the carrier concentration values to solve for the reduced Fermi level. This is as simple as finding the root of the effective mass equation.</li>
+	<img src="../static/reference_files/efm.png", height=100><br>
+	<li>We then use the reduced Fermi level to calculate Seebeck, Lorenz number, intrinsic mobility, quality factor (&beta;), and Psi (&Psi;)</li>
+	<img src="../static/reference_files/tzt.png" height=100><br>
+	<li>Parameters calculated above are put into the theoretical zT calculation</li>
+	<li>For each carrier concentration value, a theoretical zT is calculated</li>
+</ol>
+<ul>
+	<li>&alpha; is the Seebeck coefficient</li>
+	<li>L is the Lorenz number</li>
+	<li>&Psi; is the Psi function</li>
+	<li>&beta; is the thermoelectric quality factor</li>
+</ul>
+	<p>Reference: Equation 11.11 in [1]</p>
+</div>
+
+<hr id="fermi">
+<div class="about_container">
+	<h1>Fermi integral</h1>
+
+	<img src="../static/reference_files/fermi.png" width=50%><br>
+	
+	<ul>
+		<li>&eta; is the reduced Fermi level</li>
+		<li>&epsilon; is energy</li>
+		<li>Actual integration limits are 0 to 10000</li>
+		<li>j depends on the scattering parameter, <b>r</b>, seen in most of the equations below.</li>
+		<li>We use the Seebeck coefficient to solve for &eta;</li>
+	</ul>
+
+
+	<p>An example of real usage of the Fermi integral:</p>
+	<br>
+	<br>
+	<img src="../static/reference_files/fermi_example.png" width=50%><br>	
+	<p>Reference: Equation 11.1 in [1]</p>
+</div>
+
+<hr id="seebeck">
+<div class="about_container">
+<h1>Seebeck: reduced Fermi level from Seebeck</h1>
+	<br>
+	<img src="../static/reference_files/seebeck.png" height=80>
+	<br>
+	<br>
+	<ul>
+		<li>This is the foundational step for most of the calculations</li>
+		<li>Used to obtain the reduced Fermi level from the Seebeck coefficient</li>
+		<li>Assumes a known scattering parameter (r). r=1/2 for acoustic phonon scattering is most common.</li>
+		<li>Using a solver (Python's scipy.fsolve), we iterate through reduced Fermi level values until we find a value that satisfies the equation below.</li>
+		<li>&alpha; is the Seebeck coefficient</li>
+		<li>k<sub>B</sub> is Boltzmann's constant</li>
+		<li>e is the charge on an electron</li>
+	</ul>
+	<br>
+
+	<img src="../static/reference_files/seebeck_fermi.png" height=80>
+	<br>
+	<p>Reference: Equation 2 in [2] or a modified version of equation 11.20 in [1]</p>
+</div>
+
+<hr id="effectivemass">
+<div class="about_container">
+<h1>Effective mass calculation</h1>
+	<img src="../static/reference_files/efm.png" height=100><br>
+	<ul>
+		<li>Calculation takes reduced Fermi level, Hall carrier concentration, temperature, and scattering parameter (r) as inputs.</li>
+		<li>The reduced Fermi level is used to solve the Fermi integrals</li>
+		<li>The rest of the inputs are used as static variables in the equation above.</li>
+		<li>m<sup>*</sup> value result is in kg. Divide by the resting mass of an electron (see <a href="#constants">constants</a>) to get a useful number.</li>
+		<li>r is the scattering parameter. Usually -1/2 if assuming acoustic phonon scattering</li>
+		<li>k<sub>B</sub> is Boltzmann's constant</li>
+		<li>T is temperature in K</li>
+		<li>hbar is the reduced Planck constant</li>
+		<li>n<sub>H</sub> is the Hall carrier concentration</li>
+	</ul>
+	<p>Reference: Equation 11.17 in [1] and equation 3 in [2]</p>
+</div>
+
+<hr id="lorenz">
+<div class="about_container">
+<h1>Lorenz number calculation</h1>
+
+<img src="../static/reference_files/lorenz.png" height=75><br>
+<ul>
+	<li>Used in the calculation of electronic thermal conductivity</li>
+	<li>Lorenz number units are in W&Omega;K<sup>-2</sup></li>
+	<li>r is the scattering parameter. Usually -1/2 if assuming acoustic phonon scattering</li>
+</ul>
+	<p>Reference: Equation 11.23 in [1] and equation 5 in [2]</p>
+</div>
+
+<hr id="dulong">
+<div class="about_container">
+<h1>Dulong-Petit heat capacity</h1>
+<p>
+<img src="../static/reference_files/dulong.png" height=60><br>
+<ul>
+	<li>Used to estimate the constant pressure heat capacity</li>
+	<li>This estimation has less error compared to measurements on an LFA instrument</li>
+	<li>3 represents the number of degrees of freedom of atomic motion</li>
+	<li>N is the number of atoms in a formula unit (PbTe=2, Pb<sub>0.5</sub>Te<sub>0.5</sub>=1, Yb<sub>14</sub>MnSb<sub>11</sub>=26)</li>
+	<li>R = 8.314 J/mol K (universal gas constant)</li>
+	<li>m is molar mass of the compound (PbTe=334.8 g/mol, Pb<sub>0.5</sub>Te<sub>0.5</sub>=167.4 g/mol, Yb<sub>14</sub>MnSb<sub>11</sub>=3816.86 g/mol)</li>
+</ul>
+</div>
+
+<hr id="thermal">
+<div class="about_container">
+<h1>Thermal conductivity calculation</h1>
+<p>
+<img src="../static/reference_files/thermal.png" height=30><br>
+<ul>
+	<li>&kappa; is total thermal conductivity</li>
+	<li>D is thermal diffusivity</li>
+	<li>d is density</li>
+	<li>c<sub>p</sub> is the heat capacity. This can be estimated by the Dulong-Petit approximation</li>
+</ul>
+</div>
+
+<hr id="ke">
+<div class="about_container">
+<h1>Electronic thermal conductivity calculation</h1>
+<p>
+<img src="../static/reference_files/ke.png" height=60><br>
+<ul>
+	<li>&kappa;<sub>e</sub> is the electronic thermal conductivity</li>
+	<li>L is the Lorenz number</li>
+	<li>&sigma; is the electrical conductivity</li>
+	<li>T is temperature in Kelvin</li>
+	<li>&rho; is electrical resistivity (inverse of electrical conductivity)</li>
+</ul>
+</div>
+
+<hr id="kl">
+<div class="about_container">
+<h1>Lattice thermal conductivity</h1>
+<p>
+<img src="../static/reference_files/kl.png" height=30><br>
+<ul>
+	<li>&kappa;<sub>L</sub> is lattice thermal conductivity</li>
+	<li>&kappa; is total thermal conductivity</li>
+	<li>&kappa;<sub>e</sub> is electronic thermal conductivity</li>
+	<li>r is the scattering parameter. Usually -1/2 if assuming acoustic phonon scattering</li>
+</ul>
+</div>
+
+<hr id="psi">
+<div class="about_container">
+<h1>Psi (&Psi;) calculation</h1>
+<p>
+<img src="../static/reference_files/psi.png" height=100><br>
+<ul>
+	<li>Used in the calculation of a theoretical beta zT</li>
+</ul>
+	<p>Reference: Equation 11.26 in [1]</p>
+</div>
+
+<hr id="beta">
+<div class="about_container">
+<h1>Quality factor (&beta;) calculation</h1>
+<p>
+<img src="../static/reference_files/beta.png" height=100><br>
+<ul>
+	<li>&mu;<sub>0</sub> is intrinsic mobility</li>
+	<li>m<sup>*</sup> is the effective mass in kg</li>
+	<li>m<sub>e</sub> is the resting mass of an electron</li>
+	<li>T is temperature in K</li>
+	<li>&kappa;<sub>L</sub> is lattice thermal conductivity</li>
+</ul>
+	<p>Reference: Equation 11.9 in [1]</p>
+</div>
+
+<hr id="mu0">
+<div class="about_container">
+<h1>Intrinsic mobility</h1>
+<p>
+<img src="../static/reference_files/mu0.png" height=100><br>
+<ul>
+	<li>&mu;<sub>0</sub> is the intrinsic mobility</li>
+	<li>&mu;<sub>H</sub> is the Hall mobility</li>
+	<li>r is the scattering parameter. Usually -1/2 if assuming acoustic phonon scattering</li>
+</ul>
+	<p>Reference: Equation 11.14 in [1]</p>
+</div>
+
+
+
+
+<hr id="citations">
+<h1>Citations</h1>
+<p>
+	Note: Equation 11.2 in reference [1] is incorrect! n is used in the equation instead of &eta; (eta)
+<ol>
+	<li>D. M. Rowe, Thermoelectrics and its energy harvesting. Materials, preparation, and characterization in thermoelectrics. CRC Press 2012.</li>
+	<li>Z. Xia, G. Wang, X. Zhou, W. Wen, Effect of the Cu vacancy on the thermoelectric performance of p-type Cu1-xInTe2 compounds. Ceramics International 43, 2017, 16276-16282.</li>
+</ol>
+</p>
+
+
+
+{% endblock %}

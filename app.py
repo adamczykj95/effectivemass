@@ -722,6 +722,10 @@ def dulong_petit():
         
         return render_template("thermal.html", output=heat_capacity, dulong_petit_success=True)
 
+@app.route('/about/', methods=['GET'])
+def about():
+    return render_template("about.html")
+
 @app.route('/<name>')
 def download(name=''):
     return send_from_directory(name)
