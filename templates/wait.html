@@ -15,6 +15,19 @@
 <p>Job Status: {{ status }}</p>
 {% endif %}
 
+{% if status=='failed' %}
+<p class="error">
+	Please check the formatting and/or values of your excel sheet<br>
+	Commmon problems are:
+	<ul>
+		<li>Too many columns of data</li>
+		<li>Column lengths mismatched</li>
+		<li>Non numerical values in excel sheet</li>
+	</ul>
+
+</p>
+{% endif %}
+
 <br>
 <hr>
 

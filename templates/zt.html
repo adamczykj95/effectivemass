@@ -52,13 +52,15 @@
 </form>
 <br>
 
-{% if zt_excel_path %}
-<a href="{{url_for('download', name=zt_excel_path )}}" class="download">Download Excel File</a>
+{% if zt_excel_error %}
+<p class="error">{{ zt_excel_error }}</p>
 {% endif %}
 
-
 <p>Please format excel files as shown in this <a href="../static/reference_files/zt_demo_sheet.xlsx">zt demo excel sheet</a><p>
-<p>Temperature units must be: K<br>
+<p>
+File sizes up to 1mb are accepted<br>
+Data columns must be the same length<br>
+Temperature units must be: K<br>
 Seebeck units must be: &mu;V/K<br>
 Resistivity units must be: m&Omega;-cm<br>
 Thermal conductivity units must be: W/mK

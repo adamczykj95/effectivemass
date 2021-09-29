@@ -16,24 +16,28 @@ def calculate_spb(filename_timestamped, filepath_timestamped, spb_args):
     resistivity_data = spb_args[2]
     carrier_data = spb_args[3]
     hall_mobility_data = spb_args[4]
-    scattering_parameter_data = spb_args[5]
+    total_thermal_data = spb_args[5]
+    scattering_parameter_data = spb_args[6]
     
     rfl_data = efm.rfl_from_seebeck(seebeck_data, scattering_parameter_data)
     efm_data = efm.efm(rfl_data, carrier_data, temperature_data, scattering_parameter_data)
     mu0_data = efm.mu0(rfl_data, hall_mobility_data, scattering_parameter_data)
     lorenz_data = efm.lorenz(rfl_data, scattering_parameter_data)
     electronic_thermal_data = efm.electronic_thermal(lorenz_data, resistivity_data, temperature_data)
+    lattice_thermal_data = np.subtract(total_thermal_data, electronic_thermal_data)
     
     export_data = [temperature_data, 
     seebeck_data, 
     resistivity_data, 
     carrier_data, 
-    hall_mobility_data, 
+    hall_mobility_data,
+    total_thermal_data, 
     scattering_parameter_data,
     rfl_data,
     efm_data,
     mu0_data,
     lorenz_data,
+    lattice_thermal_data,
     electronic_thermal_data]
     
     export_labels = ['temperature (K)',
@@ -41,11 +45,13 @@ def calculate_spb(filename_timestamped, filepath_timestamped, spb_args):
     'resistivity (mOhm-cm)',
     'carrier concentration (cm^-3)',
     'hall mobility (cm^2/V*s)',
+    'Total thermal conductivity (W/mK)',
     'Scattering Parameter',
     'Reduced Fermi Level',
     'Effective Mass (m*/m0)',
     'Intrinsic Mobility (cm^2/V*s)',
     'Lorenz Number (W Ohm K^-2)',
+    'Lattice thermal conductivity (W/mK)',
     'Electronic Thermal Conductivity (W/mK)']
     
     df_export = pd.DataFrame(export_data).transpose()
@@ -72,8 +78,13 @@ def calculate_spb(filename_timestamped, filepath_timestamped, spb_args):
     return excel_link
     
 def zt_excel(zt_args, filename_timestamped, filepath_timestamped):
-
-    zt_data = efm.zt(*zt_args)
+	
+    temperature_data = zt_args[0]
+    seebeck_data = zt_args[1]
+    resistivity_data = zt_args[2]
+    thermal_data = zt_args[3]
+    
+    zt_data = efm.zt(seebeck_data, temperature_data, resistivity_data, thermal_data)
     
     export_data = [zt_args[0], 
     zt_args[1], 

@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import scipy.integrate
-import scipy.interpolate
 from scipy.optimize import fsolve
-import requests
 
 # Some constants
 e = 1.60217653E-19 # Charge on electron (Coulomb)

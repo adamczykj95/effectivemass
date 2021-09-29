@@ -313,9 +313,6 @@ def zt():
             imported_data = imported_data.fillna('0')
             imported_data = imported_data.values
             
-            if len(imported_data[0]) != 4:
-                raise IndexError
-            
             temperature_data =          list(imported_data[0:,0])
             seebeck_data =              list(imported_data[0:,1])
             resistivity_data =          list(imported_data[0:,2])
@@ -323,8 +320,11 @@ def zt():
 
             zt_args = [temperature_data, seebeck_data, resistivity_data, thermal_data]
             job = q.enqueue(efm_excel.zt_excel, zt_args, filename_timestamped, filepath_timestamped)
-            
+
             return redirect(url_for('zt_excel_wait', id=job.id))
+
+            
+            
             
     return render_template("zt.html", **locals())
 
@@ -384,9 +384,10 @@ def spb_excel():
             resistivity_data =          list(imported_data[0:,2])
             carrier_data =              list(imported_data[0:,3])
             hall_mobility_data =        list(imported_data[0:,4])
-            scattering_parameter_data = list(imported_data[0:,5])
+            total_thermal_data =        list(imported_data[0:,5])
+            scattering_parameter_data = list(imported_data[0:,6])
             
-            spb_args = [temperature_data, seebeck_data, resistivity_data, carrier_data, hall_mobility_data, scattering_parameter_data]
+            spb_args = [temperature_data, seebeck_data, resistivity_data, carrier_data, hall_mobility_data, total_thermal_data, scattering_parameter_data]
 
             job = q.enqueue(efm_excel.calculate_spb, filename_timestamped, filepath_timestamped, spb_args)
             

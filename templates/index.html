@@ -40,6 +40,8 @@
 <p class="error">{{ efmass_result_error }}</p>
 {% endif %}
 
+<p><a href="about/#effectivemass">About this calculation</a></p>
+
 
 <hr id="mu0_anchor">
 <h2>Intrinsic Mobility from Seebeck and Hall Mobility</h2>
@@ -71,6 +73,8 @@
 <p class="error">{{ mu0_result_error }}</p>
 {% endif %}
 
+<p><a href="about/#mu0">About this calculation</a></p>
+
 <hr id="lorenz_anchor">
 <h2>Lorenz number from Seebeck</h2>
 <form method="post" action="{{ url_for('index', _anchor='lorenz_anchor') }}" id="index_lorenz" autocomplete="off">
@@ -96,6 +100,7 @@
 <p class="error">{{ lorenz_result_error }}</p>
 {% endif %}
 
+<p><a href="about/#lorenz">About this calculation</a></p>
 
 <hr id="ke_anchor">
 <h2>Electronic Thermal Conductivity from Seebeck and Resistivity</h2>
@@ -132,6 +137,7 @@
 <p class="error">{{ ke_result_error }}</p>
 {% endif %}
 
+<p><a href="about/#ke">About this calculation</a></p>
 
 <hr id="psi_anchor">
 <h2>Psi (&Psi;) from Seebeck</h2>
@@ -157,6 +163,8 @@
 {% if psi_result_error %}
 <p class="error">{{ psi_result_error }}</p>
 {% endif %}
+
+<p><a href="about/#psi">About this calculation</a></p>
 
 <hr id="beta_anchor">
 <h2>Quality Factor (&beta;)</h2>
@@ -194,6 +202,8 @@
 <p class="error">{{ beta_result_error }}</p>
 {% endif %}
 
+<p><a href="about/#beta">About this calculation</a></p>
+
 <hr id="rfl_s_anchor">
 <h2>Reduced Fermi level from Seebeck</h2>
 <form method="post" action="{{ url_for('index', _anchor="rfl_s_anchor") }}" id="index_rfl_s" autocomplete="off">
@@ -220,6 +230,8 @@
 {% endif %}
 
 
+<p><a href="about/#seebeck">About this calculation</a></p>
+
 <hr id="s_rfl_anchor">
 <h2>Seebeck from reduced Fermi level</h2>
 <form method="post" action="{{ url_for('index', _anchor="s_rfl_anchor") }}" id="index_s_rfl" autocomplete="off">
@@ -243,6 +255,8 @@
 {% if seebeck_result_error %}
 <p class="error">{{ seebeck_result_error }}</p>
 {% endif %}
+
+<p><a href="about/#seebeck">About this calculation</a></p>
 
 <hr>
 

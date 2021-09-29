@@ -2,26 +2,25 @@
 
 {% block content %}
 
-
-<h1>Citing this webpage</h1>
-<p>Citation texts will go here</p>
-
 <hr id="contributors">
 <h1>Contributors</h1>
 
 <ul>
-	<li>Jesse M. Adamczyk 	<a href="">Google Scholar</a></li>
-	<li>Caitlin M. Crawford <a href="">Google Scholar</a></li>
-	<li>Kamil Ciesielski 	<a href="">Google Scholar</a></li>
-	<li>Eric S. Toberer 	<a href="">Google Scholar</a></li>
+	<li>Jesse M. Adamczyk 	<a href="https://scholar.google.com/citations?user=-mDvsFcAAAAJ&hl=en&oi=ao">Google Scholar</a></li>
+	<li>Eric S. Toberer 	<a href="https://scholar.google.com/citations?user=RSrCyzUAAAAJ&hl=en&oi=sra">Google Scholar</a>   <a href="https://people.mines.edu/etoberer/">Research Group Website</a></li>
 </ul>
 
 <hr anchor="#backend">
 <h1>Backend Code</h1>
 
 <p>
-This code is written using Python and Flask<br>
-The source code for the calculations is available on github here: <a href="">Effective Mass Models</a>
+<ul>
+	<li>This code is written using Python and Flask and hosted on Heroku</li>
+	<li>Uploaded files are deleted every hour</li>
+	<li>Excel and plot results files are saved are deleted every 24 hours. This is to prevent a user from leaving a long job running only to come back and find that their results are deleted.</li>
+	<li>The source code for this whole website is available: <a href="https://github.com/adamczykj95/effectivemass.git">GitHub</a></li>
+	<li>For just the single parabolic band/effective mass model calculations: <a href="https://github.com/adamczykj95/effectivemass/blob/main/efm.py">efm.py</a></li>
+</ul>
 </p>
 
 <hr id="constants">
@@ -196,6 +195,10 @@ The source code for the calculations is available on github here: <a href="">Eff
 <img src="../static/reference_files/psi.png" height=100><br>
 <ul>
 	<li>Used in the calculation of a theoretical beta zT</li>
+	<li>m<sub>e</sub> is the resting mass of an electron</li>
+	<li>k<sub>B</sub> is Boltzmann's constant</li>
+	<li>hbar is the reduced planck constat</li>
+	<li>r is the scattering parameter. Usually -1/2 if assuming acoustic phonon scattering</li>
 </ul>
 	<p>Reference: Equation 11.26 in [1]</p>
 </div>

@@ -41,11 +41,11 @@ form {
 	text-align: center;
 	background-color: #003385;
 	color: white;
-	padding: 14px 16px;
-	font-size: 17px;
+	padding: 14px 14px;
+	font-size: 18px;
+	font-weight: bold;
 	text-decoration: none;
 	margin-right: 3px;
-	margin-bottom: 3px;
 }
 
 .topnav a:hover {
